@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.18 (7th October 2026)
+	-- 	Leatrix Maps 1.60.19 (7th October 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.18"
+	LeaMapsLC["AddonVer"] = "1.60.19"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -161,12 +161,26 @@
 			titleTexture:SetAllPoints()
 			titleTexture:SetColorTexture(0.06, 0.06, 0.06, 1)
 
+			-- Create gold border (same art as the default map frame)
+			local goldBorder = CreateFrame("Frame", nil, WorldMapFrame, "NineSlicePanelTemplate")
+			goldBorder:ClearAllPoints()
+			goldBorder:SetPoint("TOPLEFT", borderFrame, "TOPLEFT", -5, 0)
+			goldBorder:SetPoint("BOTTOMRIGHT", borderFrame, "BOTTOMRIGHT", 5, -5)
+			goldBorder:SetFrameStrata("HIGH")
+			goldBorder:SetFrameLevel(frameLevel + 1)
+			NineSliceUtil.ApplyLayoutByName(goldBorder, "ButtonFrameTemplateNoPortrait")
+
+			-- Create frame for title bar text (above the gold border)
+			local titleTextFrame = CreateFrame("Frame", nil, titleFrame)
+			titleTextFrame:SetAllPoints()
+			titleTextFrame:SetFrameLevel(frameLevel + 2)
+
 			-- Create map title
-			local titleText = titleFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			local titleText = titleTextFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 			titleText:SetPoint("CENTER")
 
 			-- Create quest count
-			local questCount = titleFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+			local questCount = titleTextFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 			questCount:SetPoint("LEFT", 8, 0)
 
 			----------------------------------------------------------------------
