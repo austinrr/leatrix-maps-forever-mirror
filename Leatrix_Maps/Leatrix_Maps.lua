@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.17 (7th October 2026)
+	-- 	Leatrix Maps 1.60.18 (7th October 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.17"
+	LeaMapsLC["AddonVer"] = "1.60.18"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -104,7 +104,6 @@
 			-- Function to set map CVars (map is always windowed and opens without the quest log)
 			local function SetMapCVars()
 				if InCombatLockdown() then return end
-				if GetCVar("miniWorldMap") ~= "1" then SetCVar("miniWorldMap", "1") end
 				if GetCVar("questLogOpen") ~= "0" then SetCVar("questLogOpen", "0") end
 			end
 
@@ -121,7 +120,7 @@
 				HideFrame(v)
 			end
 			for i, v in pairs({WorldMapFrame.BorderFrame:GetChildren()}) do
-				if v ~= WorldMapFrame.BorderFrame.CloseButton then
+				if v ~= WorldMapFrame.BorderFrame.CloseButton and v ~= WorldMapFrame.BorderFrame.MaximizeMinimizeFrame then
 					HideFrame(v)
 				end
 			end
@@ -169,6 +168,67 @@
 			-- Create quest count
 			local questCount = titleFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 			questCount:SetPoint("LEFT", 8, 0)
+
+			----------------------------------------------------------------------
+			-- Title bar buttons
+			----------------------------------------------------------------------
+
+			-- Function to replace button art with a simple icon (the button still works as normal)
+			local function MakeButtonIcon(button, lines)
+				for i, v in pairs({button:GetNormalTexture(), button:GetPushedTexture(), button:GetHighlightTexture(), button:GetDisabledTexture()}) do
+					v:SetAlpha(0)
+				end
+				local icon = {}
+				for i, v in pairs(lines) do
+					icon[i] = MakeLine(button, v[1], v[2], v[3], v[4], v[5])
+					icon[i]:SetVertexColor(1, 1, 1)
+				end
+				button:HookScript("OnEnter", function()
+					for i, v in pairs(icon) do v:SetVertexColor(1, 0.82, 0) end
+				end)
+				button:HookScript("OnLeave", function()
+					for i, v in pairs(icon) do v:SetVertexColor(1, 1, 1) end
+				end)
+			end
+
+			-- Set button sizes to fit the title bar
+			WorldMapFrame.BorderFrame.CloseButton:SetSize(20, 20)
+			WorldMapFrame.BorderFrame.MaximizeMinimizeFrame:SetSize(20, 20)
+
+			-- Function to replace button art with an icon (the button still works as normal)
+			local function SetButtonIcon(button, file, normal, hover, boxColor)
+				for i, v in pairs({button:GetNormalTexture(), button:GetPushedTexture(), button:GetHighlightTexture(), button:GetDisabledTexture()}) do
+					v:SetAlpha(0)
+				end
+				-- Hover background
+				local box = button:CreateTexture(nil, "BACKGROUND")
+				box:SetAllPoints()
+				boxColor = boxColor or {1, 1, 1, 0.2}
+				box:SetColorTexture(boxColor[1], boxColor[2], boxColor[3], boxColor[4])
+				box:Hide()
+				-- Icon
+				local icon = button:CreateTexture(nil, "OVERLAY")
+				icon:SetTexture("Interface\\AddOns\\Leatrix_Maps\\" .. file)
+				icon:SetAllPoints()
+				icon:SetVertexColor(normal[1], normal[2], normal[3])
+				button:HookScript("OnEnter", function()
+					box:Show()
+					icon:SetVertexColor(hover[1], hover[2], hover[3])
+				end)
+				button:HookScript("OnLeave", function()
+					box:Hide()
+					icon:SetVertexColor(normal[1], normal[2], normal[3])
+				end)
+			end
+
+			-- Set button icons
+			SetButtonIcon(WorldMapFrame.BorderFrame.CloseButton, "Leatrix_Maps_Close", {0.8, 0.8, 0.8}, {1, 1, 1}, {0.45, 0.05, 0.05, 0.7})
+			SetButtonIcon(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame.MaximizeButton, "Leatrix_Maps_Maximise", {0.8, 0.66, 0}, {1, 0.82, 0}, {0.4, 0.3, 0.02, 0.7})
+			SetButtonIcon(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame.MinimizeButton, "Leatrix_Maps_Restore", {0.8, 0.66, 0}, {1, 0.82, 0}, {0.4, 0.3, 0.02, 0.7})
+
+			----------------------------------------------------------------------
+			-- Map title bar and quest count
+			----------------------------------------------------------------------
 
 			-- Function to set map title
 			local function SetMapTitle()
@@ -227,8 +287,19 @@
 				local closeButton = WorldMapFrame.BorderFrame.CloseButton
 				if CanChange(closeButton) then
 					closeButton:ClearAllPoints()
-					closeButton:SetPoint("RIGHT", titleFrame, "RIGHT", 2, 0)
+					closeButton:SetPoint("RIGHT", titleFrame, "RIGHT", -2, 0)
 					closeButton:SetFrameLevel(frameLevel + 5)
+				end
+
+				-- Show maximise button in the title bar (it's anchored to the left of the close button)
+				local maxButton = WorldMapFrame.BorderFrame.MaximizeMinimizeFrame
+				if CanChange(maxButton) then
+					maxButton:ClearAllPoints()
+					maxButton:SetPoint("RIGHT", closeButton, "LEFT", -2, 0)
+					maxButton:SetFrameLevel(frameLevel + 6)
+					for i, v in pairs({maxButton:GetChildren()}) do
+						v:SetFrameLevel(frameLevel + 7)
+					end
 				end
 
 				if QuestMapFrame:IsShown() and CanChange(QuestScrollFrame) then
@@ -255,9 +326,9 @@
 
 					-- Move quest settings button to the left of the close button
 					local settingsButton = QuestScrollFrame.SettingsDropdown
-					if CanChange(settingsButton) and CanChange(closeButton) then
+					if CanChange(settingsButton) and CanChange(maxButton) then
 						settingsButton:ClearAllPoints()
-						settingsButton:SetPoint("RIGHT", closeButton, "LEFT", -2, 0)
+						settingsButton:SetPoint("RIGHT", maxButton, "LEFT", -2, 0)
 						settingsButton:SetFrameLevel(frameLevel + 5)
 					end
 
@@ -270,6 +341,7 @@
 				SetQuestCount()
 				SetFrameLayout()
 			end)
+			hooksecurefunc(WorldMapFrame, "OnFrameSizeChanged", SetFrameLayout)
 			QuestMapFrame:HookScript("OnShow", SetFrameLayout)
 			QuestMapFrame:HookScript("OnHide", SetFrameLayout)
 			SetFrameLayout()
@@ -2993,7 +3065,7 @@
 
 	-- Add content
 	LeaMapsLC:MakeTx(PageF, "System", 16, -72)
-	LeaMapsLC:MakeCB(PageF, "SimpleMapFrame", "Use simple map frame", 16, -92, true, "If checked, the map will use a simple frame with a compact title bar and will always be windowed.")
+	LeaMapsLC:MakeCB(PageF, "SimpleMapFrame", "Use simple map frame", 16, -92, true, "If checked, the map will use a simple frame with a compact title bar.")
 	LeaMapsLC:MakeCB(PageF, "UnlockMap", "Unlock map frame", 16, -112, true, "If checked, you will be able to move the map.|n|nThe map position will be saved separately for the maximised and windowed maps.")
 	LeaMapsLC:MakeCB(PageF, "ScaleWorldMap", "Scale the map", 16, -132, true, "If checked, you will be able to scale the map.")
 

@@ -1,5 +1,8 @@
-﻿1.60.17 - 7th October 2026
-- The 'Simple map frame' setting is disabled by default.
+﻿1.60.18 - 7th October 2026
+- The 'Use simple man frame' now has a toggle for the maximised map.
+
+1.60.17 - 7th October 2026
+- The 'Use simple map frame' setting is disabled by default.
 - Fixed a minor issue of a small deadzone with 'Unlock map frame' when 'Allow frame movement' was disabled.
 
 1.60.15 - 7th October 2026
