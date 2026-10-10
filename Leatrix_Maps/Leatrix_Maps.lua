@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.19 (7th October 2026)
+	-- 	Leatrix Maps 1.60.20 (10th October 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.19"
+	LeaMapsLC["AddonVer"] = "1.60.20"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -65,8 +65,10 @@
 		local playerFaction = UnitFactionGroup("player")
 
 		-- Remove blackout frame
-		WorldMapFrame.BlackoutFrame:SetAlpha(0)
-		WorldMapFrame.BlackoutFrame:EnableMouse(false)
+		if LeaMapsLC["HideBlackoutFrame"] == "On" then
+			WorldMapFrame.BlackoutFrame:SetAlpha(0)
+			WorldMapFrame.BlackoutFrame:EnableMouse(false)
+		end
 
 		-- Hide the world map tutorial button
 		WorldMapFrame.BorderFrame.Tutorial:HookScript("OnShow", WorldMapFrame.BorderFrame.Tutorial.Hide)
@@ -186,24 +188,6 @@
 			----------------------------------------------------------------------
 			-- Title bar buttons
 			----------------------------------------------------------------------
-
-			-- Function to replace button art with a simple icon (the button still works as normal)
-			local function MakeButtonIcon(button, lines)
-				for i, v in pairs({button:GetNormalTexture(), button:GetPushedTexture(), button:GetHighlightTexture(), button:GetDisabledTexture()}) do
-					v:SetAlpha(0)
-				end
-				local icon = {}
-				for i, v in pairs(lines) do
-					icon[i] = MakeLine(button, v[1], v[2], v[3], v[4], v[5])
-					icon[i]:SetVertexColor(1, 1, 1)
-				end
-				button:HookScript("OnEnter", function()
-					for i, v in pairs(icon) do v:SetVertexColor(1, 0.82, 0) end
-				end)
-				button:HookScript("OnLeave", function()
-					for i, v in pairs(icon) do v:SetVertexColor(1, 1, 1) end
-				end)
-			end
 
 			-- Set button sizes to fit the title bar
 			WorldMapFrame.BorderFrame.CloseButton:SetSize(20, 20)
@@ -2449,6 +2433,7 @@
 		if	(LeaMapsLC["SimpleMapFrame"] ~= LeaMapsDB["SimpleMapFrame"])				-- Simple map frame
 		or	(LeaMapsLC["UnlockMap"] ~= LeaMapsDB["UnlockMap"])							-- Unlock map
 		or	(LeaMapsLC["ScaleWorldMap"] ~= LeaMapsDB["ScaleWorldMap"])					-- Scale the map
+		or	(LeaMapsLC["HideBlackoutFrame"] ~= LeaMapsDB["HideBlackoutFrame"])			-- Hide blackout frame
 		or	(LeaMapsLC["RevealMap"] ~= LeaMapsDB["RevealMap"])							-- Show unexplored areas
 		or	(LeaMapsLC["ShowPointsOfInterest"] ~= LeaMapsDB["ShowPointsOfInterest"])	-- Show unexplored areas
 		or	(LeaMapsLC["ShowZoneLevels"] ~= LeaMapsDB["ShowZoneLevels"])				-- Show zone levels
@@ -2754,6 +2739,7 @@
 				LeaMapsDB["UnlockMap"] = "On"
 				LeaMapsDB["EnableMovement"] = "On"
 				LeaMapsDB["ScaleWorldMap"] = "Off"
+				LeaMapsDB["HideBlackoutFrame"] = "On"
 				LeaMapsDB["MapScale"] = 1.0
 				LeaMapsDB["MaxMapScale"] = 0.9
 				LeaMapsDB["NoMapFade"] = "On"
@@ -2863,6 +2849,7 @@
 			LeaMapsLC:LoadVarChk("ScaleWorldMap", "Off")				-- Scale the map
 			LeaMapsLC:LoadVarNum("MapScale", 1.0, 0.5, 2)				-- Map scale
 			LeaMapsLC:LoadVarNum("MaxMapScale", 1.0, 0.5, 2)			-- Maximised map scale
+			LeaMapsLC:LoadVarChk("HideBlackoutFrame", "On")				-- Hide blackout frame
 			LeaMapsLC:LoadVarChk("NoMapFade", "On")						-- Disable map fade
 			LeaMapsLC:LoadVarChk("NoFilterResetBtn", "On")				-- Hide filter reset button
 
@@ -2937,6 +2924,7 @@
 			LeaMapsDB["ScaleWorldMap"] = LeaMapsLC["ScaleWorldMap"]
 			LeaMapsDB["MapScale"] = LeaMapsLC["MapScale"]
 			LeaMapsDB["MaxMapScale"] = LeaMapsLC["MaxMapScale"]
+			LeaMapsDB["HideBlackoutFrame"] = LeaMapsLC["HideBlackoutFrame"]
 			LeaMapsDB["NoMapFade"] = LeaMapsLC["NoMapFade"]
 			LeaMapsDB["NoFilterResetBtn"] = LeaMapsLC["NoFilterResetBtn"]
 
@@ -3082,6 +3070,7 @@
 	LeaMapsLC:MakeCB(PageF, "SimpleMapFrame", "Use simple map frame", 16, -92, true, "If checked, the map will use a simple frame with a compact title bar.")
 	LeaMapsLC:MakeCB(PageF, "UnlockMap", "Unlock map frame", 16, -112, true, "If checked, you will be able to move the map.|n|nThe map position will be saved separately for the maximised and windowed maps.")
 	LeaMapsLC:MakeCB(PageF, "ScaleWorldMap", "Scale the map", 16, -132, true, "If checked, you will be able to scale the map.")
+	LeaMapsLC:MakeCB(PageF, "HideBlackoutFrame", "Hide blackout frame", 16, -152, true, "If checked, the blackout frame will be hidden.")
 
 	LeaMapsLC:MakeTx(PageF, "Elements", 225, -72)
 	LeaMapsLC:MakeCB(PageF, "RevealMap", "Show unexplored areas", 225, -92, true, "If checked, unexplored areas of the map will be shown on the world map and the battlefield map.")

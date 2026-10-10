@@ -1,5 +1,8 @@
-﻿1.60.19 - 7th October 2026
-- The 'Use simple map frame' now has a gold border.  Thanks for the feedback.
+﻿1.60.20 - 10th October 2026
+- Added a new option 'Hide blackout frame'.  If checked, the blackout frame will be hidden.
+
+1.60.19 - 7th October 2026
+- The 'Use simple map frame' now has a bronze border.  Thanks for the feedback.
 
 1.60.18 - 7th October 2026
 - The 'Use simple map frame' now has a toggle for the maximised map.
