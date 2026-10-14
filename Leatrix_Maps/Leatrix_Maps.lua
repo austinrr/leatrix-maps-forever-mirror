@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.20 (10th October 2026)
+	-- 	Leatrix Maps 1.60.21 (14th October 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.20"
+	LeaMapsLC["AddonVer"] = "1.60.21"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -47,6 +47,21 @@
 		local b = color.b * 255;
 		colorString = colorString..string.format("%2x%2x%2x", r, g, b);
 		return colorString;
+	end
+
+	-- Create a random global name that changes every time the addon loads
+	function LeaMapsLC:CreateRandomName()
+		local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		local name
+		repeat
+			local parts = {"F"} -- Start with a letter
+			for i = 1, 16 do
+				local n = math.random(#chars)
+				parts[#parts + 1] = chars:sub(n, n)
+			end
+			name = table.concat(parts)
+		until not _G[name] -- Make sure the name is not already in use
+		return name
 	end
 
 	----------------------------------------------------------------------
@@ -133,8 +148,7 @@
 			-- Hide navigation bar
 			HideFrame(WorldMapFrame.NavBar)
 
-			-- Hide quest log search box and quest count
-			HideFrame(QuestScrollFrame.SearchBox)
+			-- Hide quest count
 			HideFrame(QuestLogCount)
 
 			----------------------------------------------------------------------
@@ -177,9 +191,10 @@
 			titleTextFrame:SetAllPoints()
 			titleTextFrame:SetFrameLevel(frameLevel + 2)
 
-			-- Create map title
+			-- Create map title (centered over the map, positioned in the layout function)
 			local titleText = titleTextFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 			titleText:SetPoint("CENTER")
+			titleText:SetWordWrap(false)
 
 			-- Create quest count
 			local questCount = titleTextFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -223,6 +238,34 @@
 			SetButtonIcon(WorldMapFrame.BorderFrame.CloseButton, "Leatrix_Maps_Close", {0.8, 0.8, 0.8}, {1, 1, 1}, {0.45, 0.05, 0.05, 0.7})
 			SetButtonIcon(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame.MaximizeButton, "Leatrix_Maps_Maximise", {0.8, 0.66, 0}, {1, 0.82, 0}, {0.4, 0.3, 0.02, 0.7})
 			SetButtonIcon(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame.MinimizeButton, "Leatrix_Maps_Restore", {0.8, 0.66, 0}, {1, 0.82, 0}, {0.4, 0.3, 0.02, 0.7})
+
+			-- Restyle quest search box to match the title bar (flat dark box filling the gap between the gold lines)
+			local searchBox = QuestScrollFrame.SearchBox
+			if searchBox then
+
+				-- Hide the default rounded box art (alpha is never changed by Blizzard)
+				for i, key in pairs({"Left", "Middle", "Mid", "Right"}) do
+					if searchBox[key] then searchBox[key]:SetAlpha(0) end
+				end
+
+				-- Background (fills the title bar gap without covering the gold lines)
+				local searchBg = searchBox:CreateTexture(nil, "BACKGROUND")
+				searchBg:SetPoint("TOPLEFT", -4, -1)
+				searchBg:SetPoint("BOTTOMRIGHT", 0, 0)
+
+				-- Set background color (slightly lighter while typing)
+				local function SetSearchBg(focused)
+					if focused then
+						searchBg:SetColorTexture(0.13, 0.09, 0.05, 1)
+					else
+						searchBg:SetColorTexture(0.08, 0.05, 0.03, 1)
+					end
+				end
+				SetSearchBg(false)
+				searchBox:HookScript("OnEditFocusGained", function() SetSearchBg(true) end)
+				searchBox:HookScript("OnEditFocusLost", function() SetSearchBg(false) end)
+
+			end
 
 			----------------------------------------------------------------------
 			-- Map title bar and quest count
@@ -273,6 +316,10 @@
 				borderFrame:ClearAllPoints()
 				borderFrame:SetPoint("TOPLEFT", titleFrame, "TOPLEFT", -1, 1)
 				borderFrame:SetPoint("BOTTOMRIGHT", WorldMapFrame.ScrollContainer, "BOTTOMRIGHT", questWidth + 1, -1)
+
+				-- Center map title over the map (the quest log part of the title bar is used by the search box)
+				titleText:ClearAllPoints()
+				titleText:SetPoint("CENTER", titleFrame, "CENTER", -questWidth / 2, 0)
 
 				-- Move filter button inside the map (it's anchored to the navigation bar which is hidden)
 				local filterButton = WorldMapFrame.WorldMapTrackingOptionsButton
@@ -328,6 +375,16 @@
 						settingsButton:ClearAllPoints()
 						settingsButton:SetPoint("RIGHT", maxButton, "LEFT", -2, 0)
 						settingsButton:SetFrameLevel(frameLevel + 5)
+					end
+
+					-- Move quest search box into the title bar (from the left of the quest log to the settings button)
+					local searchBox = QuestScrollFrame.SearchBox
+					if searchBox and CanChange(searchBox) and CanChange(settingsButton) then
+						searchBox:ClearAllPoints()
+						searchBox:SetPoint("LEFT", titleFrame, "RIGHT", -questWidth + 10, 1)
+						searchBox:SetPoint("RIGHT", settingsButton, "LEFT", -6, 1)
+						searchBox:SetHeight(17)
+						searchBox:SetFrameLevel(frameLevel + 5)
 					end
 
 				end
@@ -2129,11 +2186,10 @@
 	function LeaMapsLC:CreatePanel(title, globref)
 
 		-- Create the panel
-		local Side = CreateFrame("Frame", nil, UIParent)
+		local Side = CreateFrame("Frame", LeaMapsLC:CreateRandomName(), UIParent)
 
 		-- Make it a system frame
-		_G["LeaMapsGlobalPanel_" .. globref] = Side
-		table.insert(UISpecialFrames, "LeaMapsGlobalPanel_" .. globref)
+		table.insert(UISpecialFrames, Side:GetName())
 
 		-- Store it in the configuration panel table
 		tinsert(LeaConfigList, Side)
@@ -2843,7 +2899,7 @@
 
 		if event == "ADDON_LOADED" and arg1 == "Leatrix_Maps" then
 			-- Load settings or set defaults
-			LeaMapsLC:LoadVarChk("SimpleMapFrame", "Off")				-- Simple map frame
+			LeaMapsLC:LoadVarChk("SimpleMapFrame", "On")				-- Simple map frame
 			LeaMapsLC:LoadVarChk("UnlockMap", "Off")					-- Unlock map frame
 			LeaMapsLC:LoadVarChk("EnableMovement", "On")				-- Enable frame movement
 			LeaMapsLC:LoadVarChk("ScaleWorldMap", "Off")				-- Scale the map
@@ -2988,11 +3044,10 @@
 	----------------------------------------------------------------------
 
 	-- Create the panel
-	local PageF = CreateFrame("Frame", nil, UIParent)
+	local PageF = CreateFrame("Frame", LeaMapsLC:CreateRandomName(), UIParent)
 
 	-- Make it a system frame
-	_G["LeaMapsGlobalPanel"] = PageF
-	table.insert(UISpecialFrames, "LeaMapsGlobalPanel")
+	table.insert(UISpecialFrames, PageF:GetName())
 
 	-- Set frame parameters
 	LeaMapsLC["PageF"] = PageF

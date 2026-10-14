@@ -95,7 +95,7 @@
 			{"Arrow", 65.3, 86.4, L["The Hinterlands"], nil, arTex, nil, nil, nil, nil, nil, 3, 1425},
 		},
 		--[[Eastern Plaguelands]] [1423] = {
-			{"Dungeon", 27.8, 11.6, L["Stratholme (Main Gate)"], L["Dungeon"], dnTex, 58, 60}, {"Dungeon", 43.6, 19.5, L["Stratholme (Service Gate)"], L["Dungeon"], dnTex, 58, 60}, {"Dungeon", 33.7, 20.7, L["Naxxramas"], L["Raid"], rdTex, 60, 60},
+			{"Dungeon", 27.8, 11.6, L["Stratholme (Main Gate)"], L["Dungeon"], dnTex, 58, 60}, {"Dungeon", 43.6, 19.5, L["Stratholme (Service Gate)"], L["Dungeon"], dnTex, 58, 60}, {"Raid", 33.7, 20.7, L["Naxxramas"], L["Raid"], rdTex, 60, 60},
 			{"FlightA", 71.7, 49.6, L["Light's Hope Chapel"] .. ", " .. L["Eastern Plaguelands"], nil, tATex},
 			{"FlightH", 70.4, 47.6, L["Light's Hope Chapel"] .. ", " .. L["Eastern Plaguelands"], nil, tHTex},
 			{"Spirit", 38.2, 70.5, L["Spirit Healer"], nil, spTex},

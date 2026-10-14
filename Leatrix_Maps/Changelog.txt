@@ -1,4 +1,8 @@
-﻿1.60.20 - 10th October 2026
+﻿1.60.21 - 14th October 2026
+- The 'Simple map frame' option now has a quest search box and the option is enabled by default once again.
+- Updated 'Show points of interest'.
+
+1.60.20 - 10th October 2026
 - Added a new option 'Hide blackout frame'.  If checked, the blackout frame will be hidden.
 
 1.60.19 - 7th October 2026
