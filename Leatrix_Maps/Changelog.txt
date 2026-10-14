@@ -1,4 +1,7 @@
-﻿1.60.21 - 14th October 2026
+﻿1.60.23 - 14th October 2026
+- Fixed a minor issue which caused the M key to always open the map without the quest log.
+
+1.60.21 - 14th October 2026
 - The 'Simple map frame' option now has a quest search box and the option is enabled by default once again.
 - Updated 'Show points of interest'.
 

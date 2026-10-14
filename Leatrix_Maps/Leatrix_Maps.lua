@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.21 (14th October 2026)
+	-- 	Leatrix Maps 1.60.23 (14th October 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.21"
+	LeaMapsLC["AddonVer"] = "1.60.23"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -113,20 +113,6 @@
 					end)
 				end
 			end
-
-			----------------------------------------------------------------------
-			-- Windowed map
-			----------------------------------------------------------------------
-
-			-- Function to set map CVars (map is always windowed and opens without the quest log)
-			local function SetMapCVars()
-				if InCombatLockdown() then return end
-				if GetCVar("questLogOpen") ~= "0" then SetCVar("questLogOpen", "0") end
-			end
-
-			-- Set map CVars when map is closed and on startup
-			WorldMapFrame:HookScript("OnHide", SetMapCVars)
-			SetMapCVars()
 
 			----------------------------------------------------------------------
 			-- Hide map elements
@@ -410,7 +396,6 @@
 				if event == "QUEST_LOG_UPDATE" then
 					SetQuestCount()
 				elseif event == "PLAYER_REGEN_ENABLED" then
-					SetMapCVars()
 					if WorldMapFrame:IsShown() then SetFrameLayout() end
 				end
 			end)
