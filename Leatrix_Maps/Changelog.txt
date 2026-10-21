@@ -1,4 +1,7 @@
-﻿1.60.24 - 20th October 2026
+﻿1.60.25 - 21st October 2026
+- Removed the 'Use English language' option now that the addon has a language dropdown menu.
+
+1.60.24 - 20th October 2026
 - Added a language dropdown menu ('Settings') so you can choose which language you want the addon to use.
 - To use 'Simple map frame' with ElvUI, you need to disable the ElvUI World Map skin. 
 - Updated points of interest and translations.
