@@ -18,3 +18,4 @@ jobs:
       - uses: austinrr/wow-addon-mirror-action@v1
         with:
           project-id: 298842
+          game-version-type-id: 88568 # WoW Classic "Forever" builds only
