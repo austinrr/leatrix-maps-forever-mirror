@@ -1,5 +1,5 @@
-# leatrix-maps-mirror
-A mirror of [Leatrix Maps](https://www.curseforge.com/wow/addons/leatrix-maps), a WoW addon, for addon managers that install from GitHub (WowUp, lemonup).
+# leatrix-maps-forever-mirror
+A mirror of the Classic "Forever" builds of [Leatrix Maps](https://www.curseforge.com/wow/addons/leatrix-maps), a WoW addon, for addon managers that install from GitHub (WowUp, lemonup).
 
 New CurseForge versions are mirrored automatically by [wow-addon-mirror-action](https://github.com/austinrr/wow-addon-mirror-action): each version is a commit with the addon files, a tag matching the author's version, and a release with the original zip and a `release.json`.
 
