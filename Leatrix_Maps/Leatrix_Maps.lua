@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.30 (11th November 2026)
+	-- 	Leatrix Maps 1.60.31 (12th November 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.30"
+	LeaMapsLC["AddonVer"] = "1.60.31"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -4851,167 +4851,109 @@
 		if LeaMapsLC["ShowDungeonMaps"] == "On" then
 
 			-- Map art: [instance map ID] = {{map ID, level name, game map texture}, ...}
+			-- Maps in the addon folder use {map ID, level name, nil, x, y, nil, height, file} where file is the end of the file name ("2" is Leatrix_Maps_Dungeon_Art2)
+			-- Maps from DungeonJournal by Exehn (used with permission) are in Leatrix_Maps_Dungeon_Art, Art2 and Art3: the game maps with their boss skulls and some title banners covered,
+			-- (the other game maps are in Art3 to Art7 with their boss skulls covered too)
+			-- the full Forever Wailing Caverns and the maps of the dungeons that are new in Forever (by Santiago Reyes, Atlas de Azeroth: Forever)
 			-- Maps that are not in the game use {map ID, level name, nil, x, y, nil, height} in Leatrix_Maps_Dungeon_Art (2048x4096, maps are 1024 wide and 683 high unless a height is given)
-			-- Scholomance is not in the game in its classic layout so its maps are in Leatrix_Maps_Dungeon_Art too
+			-- Scholomance is not in the game in its classic layout and the game's Wailing Caverns map is missing the Forever layout, so their maps are in Leatrix_Maps_Dungeon_Art too
 			local dungeonArt = {
-				[389] = {{213, nil, "Ragefire\\Ragefire1_"}}, -- Ragefire Chasm
-				[36] = {{291, nil, "TheDeadmines\\TheDeadmines1_"}, {292, L["Ironclad Cove"], "TheDeadmines\\TheDeadmines2_"}}, -- The Deadmines
-				[43] = {{279, nil, "WailingCaverns\\WailingCaverns1_"}}, -- Wailing Caverns
-				[33] = {{310, L["The Courtyard"], "ShadowfangKeep\\ShadowfangKeep1_"}, {311, L["Dining Hall"], "ShadowfangKeep\\ShadowfangKeep2_"}, {312, L["The Vacant Den"], "ShadowfangKeep\\ShadowfangKeep3_"}, {313, L["Lower Observatory"], "ShadowfangKeep\\ShadowfangKeep4_"}, {314, L["Upper Observatory"], "ShadowfangKeep\\ShadowfangKeep5_"}, {316, L["The Wall Walk"], "ShadowfangKeep\\ShadowfangKeep7_"}, {315, L["Lord Godfrey's Chamber"], "ShadowfangKeep\\ShadowfangKeep6_"}}, -- Shadowfang Keep
-				[34] = {{225, nil, "TheStockade\\TheStockade1_"}}, -- The Stockade
-				[48] = {{221, L["The Pool of Ask'Ar"], "BlackFathomDeeps\\BlackFathomDeeps1_"}, {222, L["Moonshrine Sanctum"], "BlackFathomDeeps\\BlackFathomDeeps2_"}, {223, L["The Forgotten Pool"], "BlackFathomDeeps\\BlackFathomDeeps3_"}}, -- Blackfathom Deeps
-				[90] = {{226, L["The Hall of Gears"], "Gnomeregan\\Gnomeregan1_"}, {227, L["The Dormitory"], "Gnomeregan\\Gnomeregan2_"}, {228, L["Launch Bay"], "Gnomeregan\\Gnomeregan3_"}, {229, L["Tinkers' Court"], "Gnomeregan\\Gnomeregan4_"}}, -- Gnomeregan
-				[47] = {{301, nil, "RazorfenKraul\\RazorfenKraul1_"}}, -- Razorfen Kraul
-				[189] = {{302, L["Graveyard"], "ScarletMonastery\\ScarletMonastery1_"}, {303, L["Library"], "ScarletMonastery\\ScarletMonastery2_"}, {304, L["Armory"], "ScarletMonastery\\ScarletMonastery3_"}, {305, L["Cathedral"], "ScarletMonastery\\ScarletMonastery4_"}}, -- Scarlet Monastery
-				[129] = {{300, nil, "RazorfenDowns\\RazorfenDowns1_"}}, -- Razorfen Downs
-				[70] = {{230, L["Hall of the Keepers"], "Uldaman\\Uldaman1_"}, {231, L["Khaz'Goroth's Seat"], "Uldaman\\Uldaman2_"}}, -- Uldaman
-				[209] = {{219, nil, "ZulFarrak\\ZulFarrak"}}, -- Zul'Farrak
-				[349] = {{280, L["Caverns of Maraudon"], "Maraudon\\Maraudon1_"}, {281, L["Zaetar's Grave"], "Maraudon\\Maraudon2_"}}, -- Maraudon
-				[109] = {{220, nil, "TheTempleOfAtalHakkar\\TheTempleOfAtalHakkar1_"}}, -- Temple of Atal'Hakkar
-				[230] = {{242, L["Detention Block"], "BlackrockDepths\\BlackrockDepths1_"}, {243, L["Shadowforge City"], "BlackrockDepths\\BlackrockDepths2_"}}, -- Blackrock Depths
-				[229] = {{250, L["Tazz'Alor"], "BlackrockSpire\\BlackrockSpire1_"}, {251, L["Skitterweb Tunnels"], "BlackrockSpire\\BlackrockSpire2_"}, {252, L["Hordemar City"], "BlackrockSpire\\BlackrockSpire3_"}, {253, L["Hall of Blackhand"], "BlackrockSpire\\BlackrockSpire4_"}, {254, L["Halycon's Lair"], "BlackrockSpire\\BlackrockSpire5_"}, {255, L["Chamber of Battle"], "BlackrockSpire\\BlackrockSpire6_"}}, -- Blackrock Spire
-				[409] = {{232, nil, "MoltenCore\\MoltenCore1_"}}, -- Molten Core
-				[469] = {{287, L["Dragonmaw Garrison"], "BlackwingLair\\BlackwingLair1_"}, {288, L["Halls of Strife"], "BlackwingLair\\BlackwingLair2_"}, {289, L["Crimson Laboratories"], "BlackwingLair\\BlackwingLair3_"}, {290, L["Nefarian's Lair"], "BlackwingLair\\BlackwingLair4_"}}, -- Blackwing Lair
-				[429] = {{235, L["Gordok Commons"], "DireMaul\\DireMaul1_"}, {236, L["Capital Gardens"], "DireMaul\\DireMaul2_"}, {237, L["Court of the Highborne"], "DireMaul\\DireMaul3_"}, {238, L["Prison of Immol'Thar"], "DireMaul\\DireMaul4_"}, {239, L["Warpwood Quarter"], "DireMaul\\DireMaul5_"}, {240, L["The Shrine of Eldretharr"], "DireMaul\\DireMaul6_"}}, -- Dire Maul
+				[389] = {{213, nil, nil, 0, 0, nil, 683, "2"}}, -- Ragefire Chasm
+				[36] = {{291, nil, nil, 1024, 0, nil, 683, "2"}, {292, L["Ironclad Cove"], nil, 0, 684, nil, 683, "2"}}, -- The Deadmines
+				[43] = {{279, nil, nil, 1024, 2752}}, -- Wailing Caverns
+				[33] = {{310, L["The Courtyard"], nil, 1024, 684, nil, 683, "2"}, {316, L["The Wall Walk"], nil, 0, 1368, nil, 683, "2"}, {315, L["Lord Godfrey's Chamber"], nil, 1024, 1368, nil, 683, "2"}}, -- Shadowfang Keep
+				[34] = {{225, nil, nil, 0, 2052, nil, 683, "2"}}, -- The Stockade
+				[48] = {{221, L["The Pool of Ask'Ar"], nil, 1024, 2052, nil, 683, "2"}, {222, L["Moonshrine Sanctum"], nil, 0, 2736, nil, 683, "2"}, {223, L["The Forgotten Pool"], nil, 1024, 2736, nil, 683, "2"}}, -- Blackfathom Deeps
+				[90] = {{226, L["The Hall of Gears"], nil, 0, 0, nil, 683, "3"}, {227, L["The Dormitory"], nil, 1024, 0, nil, 683, "3"}, {228, L["Launch Bay"], nil, 0, 684, nil, 683, "3"}, {229, L["Tinkers' Court"], nil, 1024, 684, nil, 683, "3"}}, -- Gnomeregan
+				[47] = {{301, nil, nil, 0, 1368, nil, 683, "3"}}, -- Razorfen Kraul
+				[189] = {{302, L["Graveyard"], nil, 1024, 1368, nil, 683, "3"}, {303, L["Library"], nil, 0, 2052, nil, 683, "3"}, {304, L["Armory"], nil, 1024, 2052, nil, 683, "3"}, {305, L["Cathedral"], nil, 0, 2736, nil, 683, "3"}}, -- Scarlet Monastery
+				[129] = {{300, nil, nil, 1024, 2736, nil, 683, "3"}}, -- Razorfen Downs
+				[70] = {{230, L["Hall of the Keepers"], nil, 0, 0, nil, 683, "4"}, {231, L["Khaz'Goroth's Seat"], nil, 1024, 0, nil, 683, "4"}}, -- Uldaman
+				[209] = {{219, nil, nil, 0, 684, nil, 683, "4"}}, -- Zul'Farrak
+				[349] = {{280, L["Caverns of Maraudon"], nil, 1024, 684, nil, 683, "4"}, {281, L["Zaetar's Grave"], nil, 0, 1368, nil, 683, "4"}}, -- Maraudon
+				[109] = {{220, nil, nil, 1024, 1368, nil, 683, "4"}}, -- Temple of Atal'Hakkar
+				[230] = {{242, L["Detention Block"], nil, 0, 2052, nil, 683, "4"}, {243, L["Shadowforge City"], nil, 1024, 2052, nil, 683, "4"}}, -- Blackrock Depths
+				[229] = {{250, L["Tazz'Alor"], nil, 0, 2736, nil, 683, "4"}, {251, L["Skitterweb Tunnels"], nil, 1024, 2736, nil, 683, "4"}, {252, L["Hordemar City"], nil, 0, 0, nil, 683, "5"}, {253, L["Hall of Blackhand"], nil, 1024, 0, nil, 683, "5"}, {254, L["Halycon's Lair"], nil, 0, 684, nil, 683, "5"}, {255, L["Chamber of Battle"], nil, 1024, 684, nil, 683, "5"}}, -- Blackrock Spire
+				[409] = {{232, nil, nil, 0, 1368, nil, 683, "5"}}, -- Molten Core
+				[469] = {{287, L["Dragonmaw Garrison"], nil, 1024, 1368, nil, 683, "5"}, {288, L["Halls of Strife"], nil, 0, 2052, nil, 683, "5"}, {289, L["Crimson Laboratories"], nil, 1024, 2052, nil, 683, "5"}, {290, L["Nefarian's Lair"], nil, 0, 2736, nil, 683, "5"}}, -- Blackwing Lair
+				[429] = {{235, L["Gordok Commons"], nil, 1024, 2736, nil, 683, "5"}, {236, L["Capital Gardens"], nil, 0, 0, nil, 683, "6"}, {237, L["Court of the Highborne"], nil, 1024, 0, nil, 683, "6"}, {238, L["Prison of Immol'Thar"], nil, 0, 684, nil, 683, "6"}, {239, L["Warpwood Quarter"], nil, 1024, 684, nil, 683, "6"}, {240, L["The Shrine of Eldretharr"], nil, 0, 1368, nil, 683, "6"}}, -- Dire Maul
 				[289] = {{306, L["The Reliquary"], nil, 0, 0}, {307, L["Chamber of Summoning"], nil, 1024, 0}, {308, L["The Upper Study"], nil, 0, 683}, {309, L["Headmaster's Study"], nil, 1024, 683}}, -- Scholomance
-				[329] = {{317, L["Crusader's Square"], "Stratholme\\Stratholme1_"}, {318, L["The Gauntlet"], "Stratholme\\Stratholme2_"}}, -- Stratholme
-				[309] = {{233, nil, "ZulGurub\\ZulGurub"}}, -- Zul'Gurub
-				[249] = {{248, nil, "OnyxiasLair\\OnyxiasLair1_"}}, -- Onyxia's Lair
-				[509] = {{247, nil, "RuinsofAhnQiraj\\RuinsofAhnQiraj"}}, -- Ruins of Ahn'Qiraj
-				[531] = {{319, L["The Hive Undergrounds"], "AhnQiraj\\AhnQiraj1_"}, {320, L["The Temple Gates"], "AhnQiraj\\AhnQiraj2_"}, {321, L["Vault of C'Thun"], "AhnQiraj\\AhnQiraj3_"}}, -- Temple of Ahn'Qiraj
-				[533] = {{162, L["The Construct Quarter"], "Naxxramas\\Naxxramas1_"}, {163, L["The Arachnid Quarter"], "Naxxramas\\Naxxramas2_"}, {164, L["The Military Quarter"], "Naxxramas\\Naxxramas3_"}, {165, L["The Plague Quarter"], "Naxxramas\\Naxxramas4_"}, {166, L["The Lower Necropolis"], "Naxxramas\\Naxxramas5_"}, {167, L["The Upper Necropolis"], "Naxxramas\\Naxxramas6_"}}, -- Naxxramas
+				[329] = {{317, L["Crusader's Square"], nil, 1024, 1368, nil, 683, "6"}, {318, L["The Gauntlet"], nil, 0, 2052, nil, 683, "6"}}, -- Stratholme
+				[309] = {{233, nil, nil, 1024, 2052, nil, 683, "6"}}, -- Zul'Gurub
+				[249] = {{248, nil, nil, 0, 2736, nil, 683, "6"}}, -- Onyxia's Lair
+				[509] = {{247, nil, nil, 1024, 2736, nil, 683, "6"}}, -- Ruins of Ahn'Qiraj
+				[531] = {{319, L["The Hive Undergrounds"], nil, 0, 0, nil, 683, "7"}, {320, L["The Temple Gates"], nil, 1024, 0, nil, 683, "7"}, {321, L["Vault of C'Thun"], nil, 0, 684, nil, 683, "7"}}, -- Temple of Ahn'Qiraj
+				[533] = {{162, L["The Construct Quarter"], nil, 1024, 684, nil, 683, "7"}, {163, L["The Arachnid Quarter"], nil, 0, 1368, nil, 683, "7"}, {164, L["The Military Quarter"], nil, 1024, 1368, nil, 683, "7"}, {165, L["The Plague Quarter"], nil, 0, 2052, nil, 683, "7"}, {166, L["The Lower Necropolis"], nil, 1024, 2052, nil, 683, "7"}, {167, L["The Upper Necropolis"], nil, 0, 2736, nil, 683, "7"}}, -- Naxxramas
 				-- Dungeons that are new in Forever use {map key, level name, nil, x, y, nil, height} in Leatrix_Maps_Dungeon_Art.
-				-- Maps and pins are from MapUtils by D4KiR, used with permission.
-				[2959] = {{"2959", L["City of Dalaran"] .. " (1)", nil, 0, 1368, nil, 684}, {"2959_2", L["City of Dalaran"] .. " (2)", nil, 1024, 1368, nil, 689}}, -- City of Dalaran
+				-- Pins were from MapUtils by D4KiR (used with permission) and are now updated from DungeonJournal.
+				[2959] = {{"2959", L["City of Dalaran"] .. " (1)", nil, 0, 1368, nil, 683}, {"2959_2", L["City of Dalaran"] .. " (2)", nil, 1024, 1368, nil, 683}}, -- City of Dalaran
 				[2998] = {{"2998", nil, nil, 0, 2060, nil, 683}}, -- Excavation Site: Wetlands
 				[2999] = {{"2999", nil, nil, 1024, 2060, nil, 683}}, -- The Ruins of Lordaeron
 				[3065] = {{"3065", nil, nil, 0, 2752, nil, 683}}, -- The Hall of Thanes
+				[2970] = {{"2970", nil, nil, 0, 0, nil, 683, "8"}}, -- The Drowned City
+				[3039] = {{"3039", nil, nil, 1024, 0, nil, 683, "8"}}, -- Krol'dok Stronghold
+				[2994] = {{"2994", nil, nil, 0, 684, nil, 683, "8"}}, -- Alcaz Prison
+				[3001] = {{"3001", nil, nil, 1024, 2736, nil, 683, "7"}}, -- The Shaper's Terrace
 			}
 
-			-- Game maps in the addon folder for game locales that do not have them (such as esMX and ruRU)
-			-- [game map texture] = map number (Leatrix_Maps_Dungeon_01 to 03 are 16x16 tiles of 256 pixels, 12 tiles per map in order)
-			local bundledArt = {
-				["Ragefire\\Ragefire1_"] = 0,
-				["TheDeadmines\\TheDeadmines1_"] = 1,
-				["TheDeadmines\\TheDeadmines2_"] = 2,
-				["WailingCaverns\\WailingCaverns1_"] = 3,
-				["ShadowfangKeep\\ShadowfangKeep1_"] = 4,
-				["ShadowfangKeep\\ShadowfangKeep2_"] = 5,
-				["ShadowfangKeep\\ShadowfangKeep3_"] = 6,
-				["ShadowfangKeep\\ShadowfangKeep4_"] = 7,
-				["ShadowfangKeep\\ShadowfangKeep5_"] = 8,
-				["ShadowfangKeep\\ShadowfangKeep7_"] = 9,
-				["ShadowfangKeep\\ShadowfangKeep6_"] = 10,
-				["TheStockade\\TheStockade1_"] = 11,
-				["BlackFathomDeeps\\BlackFathomDeeps1_"] = 12,
-				["BlackFathomDeeps\\BlackFathomDeeps2_"] = 13,
-				["BlackFathomDeeps\\BlackFathomDeeps3_"] = 14,
-				["Gnomeregan\\Gnomeregan1_"] = 15,
-				["Gnomeregan\\Gnomeregan2_"] = 16,
-				["Gnomeregan\\Gnomeregan3_"] = 17,
-				["Gnomeregan\\Gnomeregan4_"] = 18,
-				["RazorfenKraul\\RazorfenKraul1_"] = 19,
-				["ScarletMonastery\\ScarletMonastery1_"] = 20,
-				["ScarletMonastery\\ScarletMonastery2_"] = 21,
-				["ScarletMonastery\\ScarletMonastery3_"] = 22,
-				["ScarletMonastery\\ScarletMonastery4_"] = 23,
-				["RazorfenDowns\\RazorfenDowns1_"] = 24,
-				["Uldaman\\Uldaman1_"] = 25,
-				["Uldaman\\Uldaman2_"] = 26,
-				["ZulFarrak\\ZulFarrak"] = 27,
-				["Maraudon\\Maraudon1_"] = 28,
-				["Maraudon\\Maraudon2_"] = 29,
-				["TheTempleOfAtalHakkar\\TheTempleOfAtalHakkar1_"] = 30,
-				["BlackrockDepths\\BlackrockDepths1_"] = 31,
-				["BlackrockDepths\\BlackrockDepths2_"] = 32,
-				["BlackrockSpire\\BlackrockSpire1_"] = 33,
-				["BlackrockSpire\\BlackrockSpire2_"] = 34,
-				["BlackrockSpire\\BlackrockSpire3_"] = 35,
-				["BlackrockSpire\\BlackrockSpire4_"] = 36,
-				["BlackrockSpire\\BlackrockSpire5_"] = 37,
-				["BlackrockSpire\\BlackrockSpire6_"] = 38,
-				["MoltenCore\\MoltenCore1_"] = 39,
-				["BlackwingLair\\BlackwingLair1_"] = 40,
-				["BlackwingLair\\BlackwingLair2_"] = 41,
-				["BlackwingLair\\BlackwingLair3_"] = 42,
-				["BlackwingLair\\BlackwingLair4_"] = 43,
-				["DireMaul\\DireMaul1_"] = 44,
-				["DireMaul\\DireMaul2_"] = 45,
-				["DireMaul\\DireMaul3_"] = 46,
-				["DireMaul\\DireMaul4_"] = 47,
-				["DireMaul\\DireMaul5_"] = 48,
-				["DireMaul\\DireMaul6_"] = 49,
-				["Stratholme\\Stratholme1_"] = 50,
-				["Stratholme\\Stratholme2_"] = 51,
-				["ZulGurub\\ZulGurub"] = 52,
-				["OnyxiasLair\\OnyxiasLair1_"] = 53,
-				["RuinsofAhnQiraj\\RuinsofAhnQiraj"] = 54,
-				["AhnQiraj\\AhnQiraj1_"] = 55,
-				["AhnQiraj\\AhnQiraj2_"] = 56,
-				["AhnQiraj\\AhnQiraj3_"] = 57,
-				["Naxxramas\\Naxxramas1_"] = 58,
-				["Naxxramas\\Naxxramas2_"] = 59,
-				["Naxxramas\\Naxxramas3_"] = 60,
-				["Naxxramas\\Naxxramas4_"] = 61,
-				["Naxxramas\\Naxxramas5_"] = 62,
-				["Naxxramas\\Naxxramas6_"] = 63,
-			}
+			-- Game maps in the addon folder for game locales that do not have them (none now, all dungeon maps are in Leatrix_Maps_Dungeon_Art to Art7)
+			-- [game map texture] = map number (Leatrix_Maps_Dungeon_01, 16x16 tiles of 256 pixels, 12 tiles per map in order)
+			local bundledArt = {}
 
 			-- Map pins: [map ID] = {{"entrance", x, y, type}, {"level", x, y, map ID, up}, {"boss", x, y, npc ID, name, level, display ID, style}, ...}
 			local dungeonPins = {
 				[213] = {
-					{"entrance", 0.611, 0.072},
-					{"boss", 0.564, 0.372, 11517, L["Oggleflint <Ragefire Chieftain>"], 16, 11611, 1},
-					{"boss", 0.408, 0.574, 11520, L["Taragaman the Hungerer"], 16, 7970, 1},
-					{"boss", 0.343, 0.814, 11518, L["Jergosh the Invoker"], 16, 11429, 1},
-					{"boss", 0.422, 0.857, 11519, L["Bazzalan"], 16, 2007, 1},
+					{"entrance", 0.610, 0.075},
+					{"boss", 0.561, 0.378, 11517, L["Oggleflint <Ragefire Chieftain>"], 16, 11611, 1},
+					{"boss", 0.405, 0.570, 11520, L["Taragaman the Hungerer"], 16, 7970, 1},
+					{"boss", 0.340, 0.815, 11518, L["Jergosh the Invoker"], 16, 11429, 1},
+					{"boss", 0.422, 0.842, 11519, L["Bazzalan"], 16, 2007, 1},
 				},
 				[291] = {
-					{"entrance", 0.297, 0.133},
-					{"level", 0.655, 0.667, 292},
-					{"boss", 0.364, 0.612, 644, L["Rhahk'Zor <The Foreman>"], 19, 14403, 1},
-					{"boss", 0.523, 0.510, 3586, L["Miner Johnson"], 19, 556, 2},
-					{"boss", 0.503, 0.863, 642, L["Sneed's Shredder / Sneed"], 20, 1269, 1},
-					{"boss", 0.607, 0.572, 1763, L["Gilnid <The Smelter>"], 20, 7124, 1},
+					{"entrance", 0.295, 0.135},
+					{"level", 0.615, 0.610, 292},
+					{"boss", 0.365, 0.610, 644, L["Rhahk'Zor <The Foreman>"], 19, 14403, 1},
+					{"boss", 0.535, 0.520, 3586, L["Miner Johnson"], 19, 556, 2},
+					{"boss", 0.505, 0.865, 642, L["Sneed's Shredder / Sneed"], 20, 1269, 1},
 				},
 				[292] = {
 					{"level", 0.123, 0.883, 291, true},
-					{"boss", 0.561, 0.265, 646, L["Mr. Smite <The Ship's First Mate>"], 20, 2026, 1},
-					{"boss", 0.605, 0.372, 647, L["Captain Greenskin"], 20, 7113, 1},
-					{"boss", 0.605, 0.447, 639, L["Edwin VanCleef <Defias Kingpin>"], 21, 2029, 1},
-					{"boss", 0.668, 0.398, 645, L["Cookie <The Ship's Cook>"], 20, 1305, 1},
+					{"boss", 0.515, 0.170, 646, L["Mr. Smite <The Ship's First Mate>"], 20, 2026, 1},
+					{"boss", 0.575, 0.350, 647, L["Captain Greenskin"], 20, 7113, 1},
+					{"boss", 0.605, 0.452, 639, L["Edwin VanCleef <Defias Kingpin>"], 21, 2029, 1},
+					{"boss", 0.665, 0.430, 645, L["Cookie <The Ship's Cook>"], 20, 1305, 1},
+					{"boss", 0.122, 0.755, 1763, L["Gilnid <The Smelter>"], 20, 7124, 1},
 				},
 				[279] = {
-					{"entrance", 0.463, 0.590},
-					{"boss", 0.307, 0.429, 3671, L["Lady Anacondra <Fanglord>"], 20, 4313, 1},
-					{"boss", 0.159, 0.565, 3669, L["Lord Cobrahn <Fanglord>"], 20, 4213, 1},
-					{"boss", 0.386, 0.350, 3653, L["Kresh"], 20, 5126, 1},
-					{"boss", 0.190, 0.396, 3670, L["Lord Pythas <Fanglord>"], 21, 4214, 1},
-					{"boss", 0.619, 0.737, 3674, L["Skum"], 21, 4203, 1},
-					{"boss", 0.615, 0.534, 3673, L["Lord Serpentis <Fanglord>"], 21, 4215, 1},
-					{"boss", 0.551, 0.463, 5775, L["Verdan the Everliving"], 21, 4256, 1},
-					{"boss", 0.560, 0.400, 5912, L["Deviate Faerie Dragon"], 20, 1267, 2},
-					{"boss", 0.344, 0.135, 3654, L["Mutanus the Devourer"], 22, 4088, 1},
+					{"entrance", 0.465, 0.590},
+					{"boss", 0.310, 0.430, 3671, L["Lady Anacondra <Fanglord>"], 20, 4313, 1},
+					{"boss", 0.155, 0.570, 3669, L["Lord Cobrahn <Fanglord>"], 20, 4213, 1},
+					{"boss", 0.385, 0.350, 3653, L["Kresh"], 20, 5126, 1},
+					{"boss", 0.856, 0.289, 3670, L["Lord Pythas <Fanglord>"], 21, 4214, 1},
+					{"boss", 0.927, 0.792, 3674, L["Skum"], 21, 4203, 1},
+					{"boss", 0.615, 0.535, 3673, L["Lord Serpentis <Fanglord>"], 21, 4215, 1},
+					{"boss", 0.545, 0.460, 5775, L["Verdan the Everliving"], 21, 4256, 1},
+					{"boss", 0.580, 0.600, 5912, L["Deviate Faerie Dragon"], 20, 1267, 2},
+					{"boss", 0.345, 0.130, 3654, L["Mutanus the Devourer"], 22, 4088, 1},
 				},
 				[310] = {
-					{"entrance", 0.705, 0.606},
-					{"level", 0.367, 0.392, 311},
-					{"level", 0.148, 0.866, 311},
-					{"level", 0.355, 0.666, 316, true},
-					{"boss", 0.667, 0.719, 3914, L["Rethilgore <The Cell Keeper>"], 20, 524, 1},
+					{"entrance", 0.705, 0.605},
+					{"level", 0.145, 0.864, 316, true},
+					{"boss", 0.670, 0.715, 3914, L["Rethilgore <The Cell Keeper>"], 20, 524, 1},
 					{"boss", 0.279, 0.598, 4278, L["Commander Springvale"], 24, 3223, 1},
+					{"boss", 0.327, 0.447, 3886, L["Razorclaw the Butcher"], 22, 524, 1},
+					{"boss", 0.162, 0.807, 3887, L["Baron Silverlaine"], 24, 3222, 1},
+					{"boss", 0.345, 0.635, 3864, L["Fel Steed / Shadow Charger"], 20, 1951, 1},
 				},
 				[311] = {
 					{"level", 0.593, 0.121, 310, true},
 					{"level", 0.273, 0.881, 310, true},
-					{"boss", 0.303, 0.766, 3887, L["Baron Silverlaine"], 24, 3222, 1},
-					{"boss", 0.472, 0.277, 3886, L["Razorclaw the Butcher"], 22, 524, 1},
 				},
 				[316] = {
 					{"level", 0.239, 0.745, 310},
-					{"level", 0.436, 0.331, 312, true},
-					{"boss", 0.597, 0.824, 4279, L["Odo the Blindwatcher"], 24, 522, 1},
-					{"boss", 0.690, 0.770, 3872, L["Deathsworn Captain"], 25, 3224, 2},
+					{"level", 0.515, 0.915, 315, true},
+					{"boss", 0.583, 0.828, 4279, L["Odo the Blindwatcher"], 24, 522, 1},
+					{"boss", 0.630, 0.525, 3872, L["Deathsworn Captain"], 25, 3224, 2},
 				},
 				[312] = {
 					{"level", 0.516, 0.904, 316, true},
@@ -5020,167 +4962,164 @@
 				[313] = {
 					{"level", 0.442, 0.749, 314, true},
 					{"level", 0.526, 0.872, 312},
-					{"boss", 0.543, 0.534, 4274, L["Fenrus the Devourer"], 25, 2352, 1},
 				},
 				[314] = {
 					{"level", 0.437, 0.743, 315, true},
 					{"level", 0.490, 0.780, 313},
 				},
 				[315] = {
-					{"level", 0.420, 0.842, 314},
-					{"boss", 0.560, 0.624, 3927, L["Wolf Master Nandos"], 25, 11179, 1},
-					{"boss", 0.639, 0.200, 4275, L["Archmage Arugal"], 26, 2353, 1},
+					{"boss", 0.590, 0.533, 3927, L["Wolf Master Nandos"], 25, 11179, 1},
+					{"boss", 0.685, 0.334, 4275, L["Archmage Arugal"], 26, 2353, 1},
+					{"boss", 0.546, 0.627, 4274, L["Fenrus the Devourer"], 25, 2352, 1},
+					{"boss", 0.492, 0.710, 4627, L["Arugal's Voidwalker"], 25, 1131, 1},
 				},
 				[225] = {
 					{"entrance", 0.500, 0.815},
-					{"boss", 0.440, 0.446, 1696, L["Targorr the Dread"], 24, 517, 1},
-					{"boss", 0.691, 0.300, 1666, L["Kam Deepfury"], 27, 825, 1},
-					{"boss", 0.783, 0.454, 1717, L["Hamhock"], 28, 3250, 1},
-					{"boss", 0.745, 0.562, 1716, L["Bazil Thredd"], 29, 1621, 1},
-					{"boss", 0.217, 0.261, 1663, L["Dextren Ward"], 26, 2149, 1},
-					{"boss", 0.500, 0.210, 1720, L["Bruegal Ironknuckle"], 26, 2142, 2},
+					{"boss", 0.440, 0.445, 1696, L["Targorr the Dread"], 24, 517, 1},
+					{"boss", 0.320, 0.380, 1666, L["Kam Deepfury"], 27, 825, 1},
+					{"boss", 0.780, 0.455, 1717, L["Hamhock"], 28, 3250, 1},
+					{"boss", 0.215, 0.255, 1716, L["Bazil Thredd"], 29, 1621, 1},
+					{"boss", 0.735, 0.575, 1663, L["Dextren Ward"], 26, 2149, 1},
+					{"boss", 0.500, 0.190, 1720, L["Bruegal Ironknuckle"], 26, 2142, 2},
 				},
 				[221] = {
-					{"entrance", 0.453, 0.108},
-					{"level", 0.621, 0.741, 222},
-					{"boss", 0.329, 0.602, 4887, L["Ghamoo-ra"], 25, 5027, 1},
-					{"boss", 0.113, 0.394, 4831, L["Lady Sarevess"], 25, 4979, 1},
-					{"boss", 0.543, 0.567, 6243, L["Gelihast"], 26, 1773, 1},
-					{"boss", 0.614, 0.625, 12902, L["Lorgus Jett"], 26, 12822, 1},
+					{"entrance", 0.455, 0.085},
+					{"level", 0.615, 0.700, 222},
+					{"boss", 0.325, 0.605, 4887, L["Ghamoo-ra"], 25, 5027, 1},
+					{"boss", 0.110, 0.385, 4831, L["Lady Sarevess"], 25, 4979, 1},
+					{"boss", 0.540, 0.575, 6243, L["Gelihast"], 26, 1773, 1},
 				},
 				[222] = {
-					{"level", 0.477, 0.707, 223},
 					{"level", 0.350, 0.290, 221},
-					{"boss", 0.527, 0.817, 4832, L["Twilight Lord Kelris"], 27, 4939, 1},
-					{"boss", 0.858, 0.862, 4829, L["Aku'mai"], 28, 2837, 1},
+					{"level", 0.470, 0.700, 223},
+					{"boss", 0.525, 0.810, 4832, L["Twilight Lord Kelris"], 27, 4939, 1},
+					{"boss", 0.855, 0.860, 4829, L["Aku'mai"], 28, 2837, 1},
+					{"boss", 0.325, 0.700, 12902, L["Lorgus Jett"], 26, 12822, 1},
+					{"boss", 0.420, 0.720, 12876, L["Baron Aquanis"], 28, 110, 1},
 				},
 				[223] = {
 					{"level", 0.300, 0.612, 222, true},
-					{"boss", 0.588, 0.302, 4830, L["Old Serra'kis"], 26, 1816, 1},
-					{"boss", 0.234, 0.498, 12876, L["Baron Aquanis"], 28, 110, 1},
+					{"boss", 0.585, 0.290, 4830, L["Old Serra'kis"], 26, 1816, 1},
 				},
 				[226] = {
-					{"entrance", 0.644, 0.275},
-					{"level", 0.345, 0.640, 227},
-					{"level", 0.470, 0.870, 227},
-					{"level", 0.551, 0.440, 227},
-					{"boss", 0.774, 0.664, 7361, L["Grubbis"], 32, 6533, 1},
+					{"entrance", 0.642, 0.278},
+					{"level", 0.545, 0.409, 227},
+					{"level", 0.487, 0.877, 227},
+					{"boss", 0.776, 0.671, 7361, L["Grubbis"], 32, 6533, 1},
 				},
 				[227] = {
-					{"level", 0.245, 0.580, 228},
-					{"level", 0.430, 0.830, 226, true},
+					{"level", 0.400, 0.845, 226, true},
 					{"level", 0.640, 0.580, 226, true},
-					{"boss", 0.758, 0.462, 7079, L["Viscous Fallout"], 30, 5497, 1},
+					{"level", 0.435, 0.813, 228},
+					{"boss", 0.760, 0.469, 7079, L["Viscous Fallout"], 30, 5497, 1},
+					{"boss", 0.245, 0.684, 6235, L["Electrocutioner 6000"], 32, 6915, 1},
 				},
 				[228] = {
 					{"entrance", 0.870, 0.480},
-					{"level", 0.488, 0.710, 229},
-					{"level", 0.273, 0.308, 229},
 					{"level", 0.445, 0.430, 227, true},
-					{"boss", 0.432, 0.876, 6229, L["Crowd Pummeler 9-60"], 32, 6774, 1},
+					{"level", 0.370, 0.720, 229},
+					{"boss", 0.434, 0.883, 6229, L["Crowd Pummeler 9-60"], 32, 6774, 1},
 				},
 				[229] = {
-					{"level", 0.481, 0.540, 228, true},
-					{"level", 0.710, 0.773, 228, true},
-					{"boss", 0.655, 0.835, 6235, L["Electrocutioner 6000"], 32, 6915, 1},
+					{"level", 0.440, 0.726, 228, true},
 					{"boss", 0.295, 0.540, 6228, L["Dark Iron Ambassador"], 41, 6669, 2},
-					{"boss", 0.313, 0.293, 7800, L["Mekgineer Thermaplugg"], 34, 6980, 1},
+					{"boss", 0.315, 0.299, 7800, L["Mekgineer Thermaplugg"], 34, 6980, 1},
 				},
 				[301] = {
-					{"entrance", 0.715, 0.837},
-					{"boss", 0.806, 0.514, 6168, L["Roogug"], 28, 6110, 1},
-					{"boss", 0.874, 0.412, 4424, L["Aggem Thorncurse <Death's Head Prophet>"], 30, 6097, 1},
-					{"boss", 0.573, 0.306, 4428, L["Death Speaker Jargba <Death's Head Captain>"], 30, 4644, 1},
-					{"boss", 0.218, 0.306, 4420, L["Overlord Ramtusk"], 32, 4652, 1},
-					{"boss", 0.112, 0.724, 4422, L["Agathelos the Raging"], 33, 2450, 1},
+					{"entrance", 0.714, 0.840},
+					{"boss", 0.646, 0.430, 6168, L["Roogug"], 28, 6110, 1},
+					{"boss", 0.808, 0.521, 4424, L["Aggem Thorncurse <Death's Head Prophet>"], 30, 6097, 1},
+					{"boss", 0.876, 0.419, 4428, L["Death Speaker Jargba <Death's Head Captain>"], 30, 4644, 1},
+					{"boss", 0.576, 0.313, 4420, L["Overlord Ramtusk"], 32, 4652, 1},
+					{"boss", 0.082, 0.686, 4422, L["Agathelos the Raging"], 33, 2450, 1},
 					{"boss", 0.110, 0.303, 4425, L["Blind Hunter"], 32, 4735, 2},
-					{"boss", 0.079, 0.679, 4421, L["Charlga Razorflank <The Crone>"], 33, 4642, 1},
-					{"boss", 0.494, 0.471, 4842, L["Earthcaller Halmgar"], 32, 6102, 2},
+					{"boss", 0.221, 0.313, 4421, L["Charlga Razorflank <The Crone>"], 33, 4642, 1},
+					{"boss", 0.498, 0.473, 4842, L["Earthcaller Halmgar"], 32, 6102, 2},
 				},
 				[302] = {
-					{"entrance", 0.840, 0.830},
-					{"boss", 0.721, 0.593, 3983, L["Interrogator Vishas"], 32, 2044, 1},
-					{"boss", 0.243, 0.559, 4543, L["Bloodmage Thalnos"], 34, 11396, 1},
+					{"entrance", 0.841, 0.831},
+					{"boss", 0.724, 0.600, 3983, L["Interrogator Vishas"], 32, 2044, 1},
+					{"boss", 0.246, 0.566, 4543, L["Bloodmage Thalnos"], 34, 11396, 1},
 					{"boss", 0.325, 0.660, 6490, L["Azshir the Sleepless"], 33, 5534, 2},
 					{"boss", 0.400, 0.460, 6488, L["Fallen Champion"], 33, 5230, 2},
 					{"boss", 0.400, 0.660, 6489, L["Ironspine"], 33, 5231, 2},
 				},
 				[303] = {
 					{"entrance", 0.130, 0.248},
-					{"boss", 0.294, 0.841, 3974, L["Houndmaster Loksey"], 34, 2040, 1},
-					{"boss", 0.834, 0.742, 6487, L["Arcanist Doan"], 37, 5266, 1},
+					{"boss", 0.302, 0.846, 3974, L["Houndmaster Loksey"], 34, 2040, 1},
+					{"boss", 0.835, 0.740, 6487, L["Arcanist Doan"], 37, 5266, 1},
 				},
 				[304] = {
-					{"entrance", 0.610, 0.955},
-					{"boss", 0.786, 0.106, 3975, L["Herod <The Scarlet Champion>"], 40, 2041, 1},
+					{"entrance", 0.610, 0.945},
+					{"boss", 0.785, 0.118, 3975, L["Herod <The Scarlet Champion>"], 40, 2041, 1},
 				},
 				[305] = {
-					{"entrance", 0.623, 0.920},
-					{"boss", 0.490, 0.275, 3976, L["Scarlet Commander Mograine"], 42, 2042, 1},
-					{"boss", 0.492, 0.164, 3977, L["High Inquisitor Whitemane"], 42, 2043, 1},
-					{"boss", 0.554, 0.248, 4542, L["High Inquisitor Fairbanks"], 40, 2605, 1},
+					{"entrance", 0.618, 0.915},
+					{"boss", 0.490, 0.285, 3976, L["Scarlet Commander Mograine"], 42, 2042, 1},
+					{"boss", 0.490, 0.165, 3977, L["High Inquisitor Whitemane"], 42, 2043, 1},
+					{"boss", 0.555, 0.250, 4542, L["High Inquisitor Fairbanks"], 40, 2605, 1},
 				},
 				[300] = {
-					{"entrance", 0.237, 0.190},
+					{"entrance", 0.234, 0.185},
 					{"boss", 0.470, 0.200, 7356, L["Plaguemaw the Rotting"], 40, 6124, 1},
-					{"boss", 0.857, 0.465, 7357, L["Mordresh Fire Eye"], 39, 8055, 1},
-					{"boss", 0.346, 0.664, 8567, L["Glutton"], 40, 7864, 1},
+					{"boss", 0.860, 0.467, 7357, L["Mordresh Fire Eye"], 39, 8055, 1},
+					{"boss", 0.345, 0.664, 8567, L["Glutton"], 40, 7864, 1},
 					{"boss", 0.529, 0.672, 7354, L["Ragglesnout"], 40, 11382, 1},
-					{"boss", 0.444, 0.601, 7358, L["Amnennar the Coldbringer"], 41, 7971, 1},
-					{"boss", 0.590, 0.339, 7355, L["Tuten'kash"], 40, 7845, 1},
+					{"boss", 0.455, 0.582, 7358, L["Amnennar the Coldbringer"], 41, 7971, 1},
+					{"boss", 0.589, 0.342, 7355, L["Tuten'kash"], 40, 7845, 1},
 				},
 				[230] = {
 					{"entrance", 0.285, 0.692},
 					{"level", 0.485, 0.210, 231},
-					{"entrance", 0.680, 0.725},
-					{"boss", 0.532, 0.722, 6910, L["Revelosh"], 40, 5945, 1},
-					{"boss", 0.585, 0.918, 6906, L["Baelog / Eric \"The Swift\" / Olaf"], 41, 5710, 1},
-					{"boss", 0.475, 0.439, 7206, L["Ancient Stone Keeper"], 44, 10798, 1},
-					{"boss", 0.266, 0.323, 7291, L["Galgann Firehammer"], 45, 6059, 1},
-					{"boss", 0.220, 0.257, 4854, L["Grimlok <Stonevault Chieftain>"], 45, 11165, 1},
-					{"boss", 0.370, 0.736, 7228, L["Ironaya"], 40, 6089, 1},
+					{"entrance", 0.679, 0.725},
+					{"boss", 0.534, 0.725, 6910, L["Revelosh"], 40, 5945, 1},
+					{"boss", 0.584, 0.920, 6906, L["Baelog / Eric \"The Swift\" / Olaf"], 41, 5710, 1},
+					{"boss", 0.475, 0.440, 7206, L["Ancient Stone Keeper"], 44, 10798, 1},
+					{"boss", 0.267, 0.327, 7291, L["Galgann Firehammer"], 45, 6059, 1},
+					{"boss", 0.219, 0.256, 4854, L["Grimlok <Stonevault Chieftain>"], 45, 11165, 1},
+					{"boss", 0.372, 0.739, 7228, L["Ironaya"], 40, 6089, 1},
 				},
 				[231] = {
 					{"level", 0.645, 0.410, 230, true},
-					{"boss", 0.552, 0.504, 2748, L["Archaedas <Ancient Stone Watcher>"], 47, 5988, 1},
+					{"boss", 0.553, 0.504, 2748, L["Archaedas <Ancient Stone Watcher>"], 47, 5988, 1},
 				},
 				[219] = {
-					{"entrance", 0.566, 0.901},
-					{"boss", 0.690, 0.256, 8127, L["Antu'sul <Overseer of Sul>"], 48, 7353, 1},
+					{"entrance", 0.552, 0.880},
+					{"boss", 0.646, 0.276, 8127, L["Antu'sul <Overseer of Sul>"], 48, 7353, 1},
 					{"boss", 0.527, 0.261, 7272, L["Theka the Martyr"], 46, 6696, 1},
-					{"boss", 0.442, 0.173, 7271, L["Witch Doctor Zum'rah"], 46, 6434, 1},
+					{"boss", 0.442, 0.176, 7271, L["Witch Doctor Zum'rah"], 46, 6434, 1},
 					{"boss", 0.255, 0.130, 7604, L["Sergeant Bly"], 45, 6433, 1},
 					{"boss", 0.313, 0.408, 7795, L["Hydromancer Velratha"], 46, 6685, 1},
 					{"boss", 0.423, 0.333, 7797, L["Ruuzlu"], 46, 6687, 1},
-					{"boss", 0.423, 0.333, 7267, L["Chief Ukorz Sandscalp"], 48, 6439, 1},
-					{"boss", 0.538, 0.373, 10082, L["Zerillis"], 45, 9293, 2},
-					{"boss", 0.463, 0.578, 10080, L["Sandarr Dunereaver"], 45, 9291, 2},
-					{"boss", 0.313, 0.408, 10081, L["Dustwraith"], 45, 9292, 2},
+					{"boss", 0.422, 0.329, 7267, L["Chief Ukorz Sandscalp"], 48, 6439, 1},
+					{"boss", 0.548, 0.401, 10082, L["Zerillis"], 45, 9293, 2},
+					{"boss", 0.524, 0.428, 10080, L["Sandarr Dunereaver"], 45, 9291, 2},
+					{"boss", 0.310, 0.160, 10081, L["Dustwraith"], 45, 9292, 2},
 					{"boss", 0.235, 0.183, 7796, L["Nekrum Gutchewer"], 46, 6690, 1},
-					{"boss", 0.334, 0.170, 7275, L["Shadowpriest Sezz'ziz"], 47, 6441, 1},
-					{"boss", 0.313, 0.408, 7273, L["Gahz'rilla"], 46, 7271, 1},
+					{"boss", 0.296, 0.174, 7275, L["Shadowpriest Sezz'ziz"], 47, 6441, 1},
+					{"boss", 0.312, 0.414, 7273, L["Gahz'rilla"], 46, 7271, 1},
 				},
 				[280] = {
-					{"entrance", 0.768, 0.657},
+					{"entrance", 0.764, 0.659},
 					{"level", 0.145, 0.570, 281},
-					{"entrance", 0.622, 0.281},
-					{"boss", 0.359, 0.098, 13282, L["Noxxion"], 48, 11172, 1},
-					{"boss", 0.163, 0.338, 12258, L["Razorlash"], 48, 12389, 1},
-					{"boss", 0.378, 0.707, 12236, L["Lord Vyletongue"], 47, 12334, 1},
+					{"entrance", 0.618, 0.281},
+					{"boss", 0.362, 0.098, 13282, L["Noxxion"], 48, 11172, 1},
+					{"boss", 0.166, 0.344, 12258, L["Razorlash"], 48, 12389, 1},
+					{"boss", 0.378, 0.704, 12236, L["Lord Vyletongue"], 47, 12334, 1},
 					{"boss", 0.246, 0.874, 12237, L["Meshlok the Harvester"], 48, 9014, 2},
 				},
 				[281] = {
 					{"level", 0.295, 0.040, 280, true},
-					{"boss", 0.245, 0.135, 12225, L["Celebras the Cursed"], 49, 12350, 1},
-					{"boss", 0.412, 0.487, 12203, L["Landslide"], 50, 12293, 1},
+					{"boss", 0.245, 0.143, 12225, L["Celebras the Cursed"], 49, 12350, 1},
+					{"boss", 0.408, 0.487, 12203, L["Landslide"], 50, 12293, 1},
 					{"boss", 0.484, 0.686, 13601, L["Tinkerer Gizlock"], 50, 7125, 1},
-					{"boss", 0.333, 0.771, 13596, L["Rotgrip"], 50, 13589, 1},
-					{"boss", 0.259, 0.784, 12201, L["Princess Theradras"], 51, 12292, 1},
+					{"boss", 0.413, 0.817, 13596, L["Rotgrip"], 50, 13589, 1},
+					{"boss", 0.258, 0.788, 12201, L["Princess Theradras"], 51, 12292, 1},
 				},
 				[220] = {
 					{"entrance", 0.500, 0.110},
-					{"boss", 0.525, 0.450, 5721, L["Dreamscythe"], 53, 7553, 1},
-					{"boss", 0.470, 0.450, 5720, L["Weaver"], 51, 6375, 1},
+					{"boss", 0.400, 0.875, 5721, L["Dreamscythe"], 53, 7553, 1},
+					{"boss", 0.430, 0.875, 5720, L["Weaver"], 51, 6375, 1},
 					{"boss", 0.451, 0.585, 5713, L["Gasher"], 51, 6698, 1},
 					{"boss", 0.451, 0.585, 5714, L["Loro"], 51, 6700, 1},
 					{"boss", 0.451, 0.585, 5715, L["Hukku"], 52, 6702, 1},
@@ -5188,40 +5127,40 @@
 					{"boss", 0.451, 0.585, 5717, L["Mijan"], 52, 6707, 1},
 					{"boss", 0.451, 0.585, 5716, L["Zul'Lor"], 52, 6701, 1},
 					{"boss", 0.760, 0.370, 5710, L["Jammal'an the Prophet"], 54, 6708, 1},
-					{"boss", 0.767, 0.361, 5711, L["Ogom the Wretched"], 53, 6709, 1},
-					{"boss", 0.499, 0.866, 5719, L["Morphaz"], 52, 7975, 1},
-					{"boss", 0.448, 0.851, 5722, L["Hazzas"], 53, 9584, 1},
-					{"boss", 0.665, 0.874, 5709, L["Shade of Eranikus"], 55, 7806, 1},
+					{"boss", 0.780, 0.385, 5711, L["Ogom the Wretched"], 53, 6709, 1},
+					{"boss", 0.465, 0.840, 5719, L["Morphaz"], 52, 7975, 1},
+					{"boss", 0.495, 0.840, 5722, L["Hazzas"], 53, 9584, 1},
+					{"boss", 0.686, 0.874, 5709, L["Shade of Eranikus"], 55, 7806, 1},
 					{"boss", 0.501, 0.358, 8580, L["Atal'alarion <Guardian of the Idol>"], 50, 7873, 1},
-					{"boss", 0.241, 0.453, 8443, L["Avatar of Hakkar"], 49, 8053, 1},
+					{"boss", 0.243, 0.459, 8443, L["Avatar of Hakkar"], 49, 8053, 1},
 				},
 				[242] = {
-					{"entrance", 0.333, 0.791},
+					{"entrance", 0.329, 0.794},
 					{"level", 0.655, 0.294, 243, true},
-					{"boss", 0.494, 0.567, 9025, L["Lord Roccor"], 51, 5781, 1},
-					{"boss", 0.476, 0.920, 9018, L["High Interrogator Gerstahn <Twilight's Hammer Interrogator>"], 52, 8761, 1},
-					{"boss", 0.495, 0.617, 9319, L["Houndmaster Grebmar"], 52, 9212, 1},
-					{"boss", 0.256, 0.526, 9016, L["Bael'Gar"], 54, 12162, 1},
-					{"boss", 0.565, 0.308, 9017, L["Lord Incendius"], 55, 1204, 1},
-					{"boss", 0.634, 0.206, 9056, L["Fineous Darkvire <Chief Architect>"], 54, 8704, 1},
-					{"boss", 0.560, 0.667, 9024, L["Pyromancer Loregrain"], 52, 8762, 1},
-					{"boss", 0.356, 0.570, 9033, L["General Angerforge"], 57, 8756, 1},
-					{"boss", 0.500, 0.635, 9031, L["Anub'shiah / Eviscerator / Gorosh the Dervish / Grizzle / Hedrum the Creeper / Ok'thor the Breaker"], 56, 3004, 1},
+					{"boss", 0.556, 0.670, 9025, L["Lord Roccor"], 51, 5781, 1},
+					{"boss", 0.474, 0.922, 9018, L["High Interrogator Gerstahn <Twilight's Hammer Interrogator>"], 52, 8761, 1},
+					{"boss", 0.535, 0.573, 9319, L["Houndmaster Grebmar"], 52, 9212, 1},
+					{"boss", 0.251, 0.534, 9016, L["Bael'Gar"], 54, 12162, 1},
+					{"boss", 0.564, 0.311, 9017, L["Lord Incendius"], 55, 1204, 1},
+					{"boss", 0.635, 0.211, 9056, L["Fineous Darkvire <Chief Architect>"], 54, 8704, 1},
 				},
 				[243] = {
 					{"level", 0.595, 0.547, 242},
-					{"boss", 0.595, 0.655, 9041, L["Warder Stilgiss / Verek"], 56, 9089, 1},
-					{"boss", 0.364, 0.646, 8983, L["Golem Lord Argelmach"], 57, 8759, 1},
-					{"boss", 0.498, 0.632, 9502, L["Phalanx"], 55, 8177, 1},
+					{"boss", 0.602, 0.659, 9041, L["Warder Stilgiss / Verek"], 56, 9089, 1},
+					{"boss", 0.364, 0.651, 8983, L["Golem Lord Argelmach"], 57, 8759, 1},
+					{"boss", 0.458, 0.564, 9502, L["Phalanx"], 55, 8177, 1},
 					{"boss", 0.498, 0.632, 9543, L["Ribbly Screwspigot"], 53, 8667, 1},
-					{"boss", 0.498, 0.632, 9499, L["Plugger Spazzring"], 55, 8652, 1},
-					{"boss", 0.539, 0.483, 9156, L["Ambassador Flamelash"], 57, 8329, 1},
-					{"boss", 0.802, 0.113, 9938, L["Magmus"], 57, 12162, 1},
-					{"boss", 0.535, 0.243, 9039, L["Doom'rel / Dope'rel / Hate'rel / Seeth'rel / Vile'rel / Gloom'rel / Anger'rel"], 57, 8687, 1},
-					{"boss", 0.916, 0.115, 9019, L["Emperor Dagran Thaurissan"], 59, 8807, 1},
-					{"boss", 0.916, 0.115, 8929, L["Princess Moira Bronzebeard <Princess of Ironforge>"], 58, 8705, 1},
-					{"boss", 0.498, 0.632, 9537, L["Hurley Blackbreath"], 55, 8658, 1},
+					{"boss", 0.477, 0.657, 9499, L["Plugger Spazzring"], 55, 8652, 1},
+					{"boss", 0.538, 0.485, 9156, L["Ambassador Flamelash"], 57, 8329, 1},
+					{"boss", 0.796, 0.118, 9938, L["Magmus"], 57, 12162, 1},
+					{"boss", 0.538, 0.247, 9039, L["Doom'rel / Dope'rel / Hate'rel / Seeth'rel / Vile'rel / Gloom'rel / Anger'rel"], 57, 8687, 1},
+					{"boss", 0.909, 0.118, 9019, L["Emperor Dagran Thaurissan"], 59, 8807, 1},
+					{"boss", 0.920, 0.110, 8929, L["Princess Moira Bronzebeard <Princess of Ironforge>"], 58, 8705, 1},
+					{"boss", 0.505, 0.704, 9537, L["Hurley Blackbreath"], 55, 8658, 1},
 					{"boss", 0.505, 0.354, 8923, L["Panzor the Invincible"], 57, 8270, 2},
+					{"boss", 0.530, 0.898, 9031, L["Anub'shiah / Eviscerator / Gorosh the Dervish / Grizzle / Hedrum the Creeper / Ok'thor the Breaker"], 56, 3004, 1},
+					{"boss", 0.549, 0.948, 9024, L["Pyromancer Loregrain"], 52, 8762, 1},
+					{"boss", 0.363, 0.823, 9033, L["General Angerforge"], 57, 8756, 1},
 				},
 				[232] = {
 					{"entrance", 0.264, 0.226, "raid"},
@@ -5254,42 +5193,42 @@
 					{"entrance", 0.954, 0.508},
 					{"level", 0.505, 0.630, 240},
 					{"boss", 0.122, 0.310, 14354, L["Pusillin"], 57, 7552, 1},
-					{"boss", 0.439, 0.474, 11490, L["Zevrim Thornhoof"], 57, 11335, 1},
+					{"boss", 0.438, 0.481, 14327, L["Lethtendris"], 57, 14378, 1},
 				},
 				[240] = {
-					{"entrance", 0.281, 0.555},
+					{"entrance", 0.281, 0.554},
 					{"level", 0.633, 0.844, 239, true},
-					{"boss", 0.564, 0.284, 11492, L["Alzzin the Wildshaper"], 58, 14416, 1},
-					{"boss", 0.536, 0.710, 13280, L["Hydrospawn"], 57, 5489, 1},
-					{"boss", 0.576, 0.737, 14327, L["Lethtendris"], 57, 14378, 1},
+					{"boss", 0.566, 0.288, 11492, L["Alzzin the Wildshaper"], 58, 14416, 1},
+					{"boss", 0.536, 0.715, 13280, L["Hydrospawn"], 57, 5489, 1},
+					{"boss", 0.575, 0.743, 11490, L["Zevrim Thornhoof"], 57, 11335, 1},
 				},
 				[236] = {
 					{"entrance", 0.935, 0.721},
-					{"entrance", 0.936, 0.510},
+					{"entrance", 0.935, 0.507},
 					{"level", 0.270, 0.190, 237},
 					{"level", 0.304, 0.430, 238},
-					{"boss", 0.332, 0.530, 11489, L["Tendris Warpwood"], 60, 14383, 1},
-					{"boss", 0.208, 0.779, 11488, L["Illyanna Ravenoak"], 60, 11270, 1},
+					{"boss", 0.336, 0.536, 11489, L["Tendris Warpwood"], 60, 14383, 1},
+					{"boss", 0.203, 0.776, 11488, L["Illyanna Ravenoak"], 60, 11270, 1},
 				},
 				[237] = {
 					{"level", 0.415, 0.120, 236},
-					{"boss", 0.338, 0.444, 11487, L["Magister Kalendris"], 60, 14384, 1},
+					{"boss", 0.338, 0.450, 11487, L["Magister Kalendris"], 60, 14384, 1},
 					{"boss", 0.322, 0.143, 11467, L["Tsu'zee"], 59, 11250, 1},
 				},
 				[238] = {
 					{"level", 0.745, 0.400, 236, true},
-					{"boss", 0.349, 0.571, 11496, L["Immol'thar"], 61, 14173, 1},
-					{"boss", 0.620, 0.230, 11486, L["Prince Tortheldrin"], 61, 11256, 1},
+					{"boss", 0.349, 0.575, 11496, L["Immol'thar"], 61, 14173, 1},
+					{"boss", 0.622, 0.231, 11486, L["Prince Tortheldrin"], 61, 11256, 1},
 				},
 				[235] = {
-					{"entrance", 0.718, 0.926},
-					{"boss", 0.694, 0.754, 14326, L["Guard Mol'dar"], 59, 11561, 1},
-					{"boss", 0.609, 0.681, 14322, L["Stomper Kreeg <The Drunk>"], 59, 11545, 1},
-					{"boss", 0.496, 0.778, 14321, L["Guard Fengus"], 59, 11561, 1},
-					{"boss", 0.264, 0.570, 14323, L["Guard Slip'kik"], 59, 11561, 1},
-					{"boss", 0.319, 0.496, 14325, L["Captain Kromcrush"], 61, 11564, 1},
-					{"boss", 0.318, 0.263, 14324, L["Cho'Rush the Observer"], 60, 11537, 1},
-					{"boss", 0.318, 0.263, 11501, L["King Gordok"], 62, 11583, 1},
+					{"entrance", 0.717, 0.924},
+					{"boss", 0.695, 0.760, 14326, L["Guard Mol'dar"], 59, 11561, 1},
+					{"boss", 0.612, 0.692, 14322, L["Stomper Kreeg <The Drunk>"], 59, 11545, 1},
+					{"boss", 0.494, 0.780, 14321, L["Guard Fengus"], 59, 11561, 1},
+					{"boss", 0.266, 0.571, 14323, L["Guard Slip'kik"], 59, 11561, 1},
+					{"boss", 0.318, 0.506, 14325, L["Captain Kromcrush"], 61, 11564, 1},
+					{"boss", 0.300, 0.290, 14324, L["Cho'Rush the Observer"], 60, 11537, 1},
+					{"boss", 0.319, 0.229, 11501, L["King Gordok"], 62, 11583, 1},
 				},
 				[306] = {
 					{"entrance", 0.390, 0.652},
@@ -5302,27 +5241,29 @@
 				},
 				[317] = {
 					{"entrance", 0.640, 0.880},
-					{"boss", 0.392, 0.287, 10808, L["Timmy the Cruel"], 58, 571, 2},
-					{"entrance", 0.686, 0.880},
+					{"boss", 0.495, 0.180, 10808, L["Timmy the Cruel"], 58, 571, 2},
+					{"entrance", 0.675, 0.877},
 					{"level", 0.900, 0.330, 318, true},
-					{"boss", 0.815, 0.438, 10393, L["Skul"], 58, 2606, 2},
-					{"boss", 0.847, 0.454, 10558, L["Hearthsinger Forresten"], 57, 10482, 2},
-					{"boss", 0.735, 0.200, 10516, L["The Unforgiven"], 57, 10771, 1},
+					{"boss", 0.574, 0.652, 10393, L["Skul"], 58, 2606, 2},
+					{"boss", 0.605, 0.327, 10558, L["Hearthsinger Forresten"], 57, 10482, 2},
+					{"boss", 0.734, 0.204, 10516, L["The Unforgiven"], 57, 10771, 1},
 					{"boss", 0.298, 0.405, 11032, L["Malor the Zealous"], 60, 10458, 1},
-					{"boss", 0.041, 0.507, 10997, L["Cannon Master Willey"], 60, 10674, 1},
-					{"boss", 0.272, 0.746, 10811, L["Archivist Galford"], 60, 10544, 1},
-					{"boss", 0.204, 0.817, 10813, L["Balnazzar"], 62, 10691, 1},
+					{"boss", 0.042, 0.510, 10997, L["Cannon Master Willey"], 60, 10674, 1},
+					{"boss", 0.272, 0.750, 10811, L["Archivist Galford"], 60, 10544, 1},
+					{"boss", 0.204, 0.818, 10813, L["Balnazzar"], 62, 10691, 1},
+					{"boss", 0.558, 0.684, 11143, L["Postmaster Malown"], 60, 10669, 1},
 				},
 				[318] = {
+					{"entrance", 0.658, 0.902},
 					{"level", 0.355, 0.390, 317},
 					{"level", 0.570, 0.770, 317},
 					{"boss", 0.649, 0.489, 10809, L["Stonespine"], 60, 7856, 2},
-					{"boss", 0.745, 0.460, 10436, L["Baroness Anastari"], 59, 10698, 1},
-					{"boss", 0.571, 0.459, 10437, L["Nerub'enkan"], 60, 9793, 1},
-					{"boss", 0.676, 0.213, 10438, L["Maleki the Pallid"], 61, 10546, 1},
-					{"boss", 0.644, 0.752, 10435, L["Magistrate Barthilas"], 58, 10433, 1},
-					{"boss", 0.391, 0.201, 10440, L["Baron Rivendare"], 62, 10729, 1},
-					{"boss", 0.452, 0.197, 10439, L["Ramstein the Gorger"], 61, 12818, 1},
+					{"boss", 0.745, 0.469, 10436, L["Baroness Anastari"], 59, 10698, 1},
+					{"boss", 0.572, 0.461, 10437, L["Nerub'enkan"], 60, 9793, 1},
+					{"boss", 0.674, 0.227, 10438, L["Maleki the Pallid"], 61, 10546, 1},
+					{"boss", 0.566, 0.161, 10435, L["Magistrate Barthilas"], 58, 10433, 1},
+					{"boss", 0.372, 0.199, 10440, L["Baron Rivendare"], 62, 10729, 1},
+					{"boss", 0.456, 0.198, 10439, L["Ramstein the Gorger"], 61, 12818, 1},
 				},
 				[233] = {
 					{"entrance", 0.290, 0.490, "raid"},
@@ -5428,42 +5369,51 @@
 					{"level", 0.616, 0.542, "2959_2"},
 					{"level", 0.513, 0.684, "2959_2"},
 					{"level", 0.531, 0.365, "2959_2"},
-					{"boss", 0.524, 0.840, 245999, L["Arcane Anomaly"], 30, 129891, 1},
-					{"boss", 0.565, 0.230, 246020, L["Shade of the Archmage"], 33, 130061, 1},
-					{"boss", 0.517, 0.551, 246003, L["Fel Ancient"], 32, 129894, 1},
-					{"boss", 0.613, 0.424, 246017, L["Unstable Sentinel"], 31, 129954, 1},
-					{"boss", 0.668, 0.516, 246016, L["Arcanic Enigma"], 30, 129900, 1},
-					{"boss", 0.418, 0.729, 246008, L["Mana Devourer"], 31, 129895, 1},
+					{"boss", 0.527, 0.843, 245999, L["Arcane Anomaly"], 30, 129891, 1},
+					{"boss", 0.520, 0.240, 246020, L["Shade of the Archmage"], 33, 130061, 1},
+					{"boss", 0.513, 0.549, 246003, L["Fel Ancient"], 32, 129894, 1},
+					{"boss", 0.614, 0.413, 246017, L["Unstable Sentinel"], 31, 129954, 1},
+					{"boss", 0.669, 0.503, 246016, L["Arcanic Enigma"], 30, 129900, 1},
+					{"boss", 0.416, 0.730, 246008, L["Mana Devourer"], 31, 129895, 1},
 				},
 				["2959_2"] = {
-					{"entrance", 0.184, 0.840},
-					{"level", 0.765, 0.570, "2959", true},
-					{"boss", 0.545, 0.510, 247126, L["Atrexis the Grave Knight"], 29, 145787, 1},
-					{"boss", 0.680, 0.180, 247032, L["Lyn the Ignored"], 31, 130235, 2},
+					{"entrance", 0.190, 0.838},
+					{"level", 0.778, 0.564, "2959", true},
+					{"boss", 0.535, 0.505, 247126, L["Atrexis the Grave Knight"], 29, 145787, 1},
+					{"boss", 0.680, 0.177, 247032, L["Lyn the Ignored"], 31, 130235, 2},
 				},
 				["2998"] = {
-					{"entrance", 0.889, 0.258},
-					{"boss", 0.550, 0.360, 260322, L["Saltspine"], nil, 144209, 1},
-					{"boss", 0.325, 0.700, 260326, L["Relic Guardian"], nil, 144224, 1},
-					{"boss", 0.305, 0.480, 260325, L["Shadetooth"], nil, 144210, 1},
-					{"boss", 0.770, 0.220, 260808, L["Highland Horror"], 28, 9010, 1},
+					{"entrance", 0.888, 0.258},
+					{"boss", 0.550, 0.361, 260322, L["Saltspine"], nil, 144209, 1},
+					{"boss", 0.324, 0.687, 260326, L["Relic Guardian"], nil, 144224, 1},
+					{"boss", 0.305, 0.484, 260325, L["Shadetooth"], nil, 144210, 1},
+					{"boss", 0.082, 0.405, 260808, L["Highland Horror"], 28, 9010, 1},
 				},
 				["2999"] = {
-					{"entrance", 0.612, 0.216},
-					{"boss", 0.704, 0.389, 250483, L["Witherfang"], 17, 144189, 1},
-					{"boss", 0.606, 0.696, 250660, L["The Baron"], 17, 144188, 1},
-					{"boss", 0.382, 0.670, 256035, L["Viktor the Vile"], 19, 139455, 1},
-					{"boss", 0.406, 0.534, 250631, L["The Abandoned"], 18, 138667, 1},
-					{"boss", 0.424, 0.385, 256097, L["Bjork"], 19, 144170, 1},
-					{"boss", 0.463, 0.623, 250657, L["Rath'mael"], 20, 144175, 1},
-					{"boss", 0.433, 0.269, 255699, L["Lordaeron Captain"], 19, 139050, 2},
+					{"entrance", 0.612, 0.214},
+					{"boss", 0.668, 0.360, 250483, L["Witherfang"], 17, 144189, 1},
+					{"boss", 0.615, 0.650, 250660, L["The Baron"], 17, 144188, 1},
+					{"boss", 0.437, 0.788, 256035, L["Viktor the Vile"], 19, 139455, 1},
+					{"boss", 0.395, 0.665, 250631, L["The Abandoned"], 18, 138667, 1},
+					{"boss", 0.345, 0.220, 256097, L["Bjork"], 19, 144170, 1},
+					{"boss", 0.520, 0.600, 250657, L["Rath'mael"], 20, 144175, 1},
+					{"boss", 0.500, 0.300, 255699, L["Lordaeron Captain"], 19, 139050, 2},
 				},
 				["3065"] = {
-					{"entrance", 0.511, 0.948},
-					{"boss", 0.509, 0.666, 261306, L["Faldrim Anvilmar"], 16, 142826, 1},
-					{"boss", 0.717, 0.465, 261316, L["Magmatus"], 16, 1070, 1},
-					{"boss", 0.509, 0.516, 261311, L["Plunder"], 16, 142840, 1},
-					{"boss", 0.510, 0.167, 261319, L["Durgen Dirgehammer"], 16, 142837, 1},
+					{"entrance", 0.510, 0.944},
+					{"boss", 0.509, 0.668, 261306, L["Faldrim Anvilmar"], 16, 142826, 1},
+					{"boss", 0.748, 0.478, 261316, L["Magmatus"], 16, 1070, 1},
+					{"boss", 0.510, 0.515, 261311, L["Plunder"], 16, 142840, 1},
+					{"boss", 0.509, 0.170, 261319, L["Durgen Dirgehammer"], 16, 142837, 1},
+				},
+				["2970"] = {
+					{"entrance", 0.846, 0.521},
+				},
+				["3039"] = {
+					{"entrance", 0.205, 0.807},
+				},
+				["2994"] = {
+					{"entrance", 0.353, 0.160},
 				},
 				[308] = {
 					{"boss", 0.316, 0.643, 11622, L["Rattlegore"], 61, 12073, 1},
@@ -5988,7 +5938,7 @@
 					if not usingTiles then
 						-- Maps in the addon folder (Scholomance and dungeons that are new in Forever)
 						local x, y, h = info[4], info[5], info[7] or 683
-						canvas.art:SetTexture(artPath)
+						canvas.art:SetTexture(info[8] and artPath .. info[8] or artPath)
 						canvas.art:SetTexCoord((x + 0.5) / 2048, (x + 1024 - 0.5) / 2048, (y + 0.5) / 4096, (y + h - 0.5) / 4096)
 					end
 					view.zoom, view.x, view.y = 1, 0, 0
@@ -6149,6 +6099,10 @@
 				{2998, "Excavation Site: Wetlands"},
 				{2999, "The Ruins of Lordaeron"},
 				{3065, "The Hall of Thanes"},
+				{2970, "The Drowned City"},
+				{3039, "Krol'dok Stronghold"},
+				{2994, "Alcaz Prison"},
+				{3001, "The Shaper's Terrace"},
 			}
 
 			-- Arrow keys change the previewed map (key frame only exists and listens while previewing, never in combat)
@@ -6235,6 +6189,10 @@
 				[L["Excavation Site: Wetlands"]] = {2998},
 				[L["The Ruins of Lordaeron"]] = {2999},
 				[L["The Hall of Thanes"]] = {3065},
+				[L["The Drowned City"]] = {2970},
+				[L["Krol'dok Stronghold"]] = {3039},
+				[L["Alcaz Prison"]] = {2994},
+				[L["Shaper's Terrace"]] = {3001},
 			}
 
 			-- Function to show the dungeon map for an instance

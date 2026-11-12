@@ -1,4 +1,7 @@
-﻿1.60.30 - 11th November 2026
+﻿1.60.31 - 12th November 2026
+- Updated dungeon maps.
+
+1.60.30 - 11th November 2026
 - Added new 'Simple map frame' themes called 'Glass', 'Retro TV' with functional controls and 'Games' which includes a playable minigame called Gemfall.  Why?  Because it's a games deck.
 - Added a new option 'Set keybindings' which replaces the previous way of setting addon related keybindings.
 - Updated the 'Enhance battlefield map' panel design.  Removed the 'Center map on player' setting from 'Enhance battlefield map' to prevent issues.  Updated battlefield map reveal code for same reason.
