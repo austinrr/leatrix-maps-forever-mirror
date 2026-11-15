@@ -8,7 +8,8 @@
 -- the same settings). A marker retires itself when Leatrix Maps, or
 -- Leatrix_Maps_Forever.lua, gains one like it.
 --
---   /lmf edit     edit mode on or off: Alt-click the map to add a marker, or one of yours to change it
+--   /lmf edit     edit mode on or off: Alt-click the map to add a marker; drag one of yours to
+--                 move it, click it to turn or delete it
 --   /lmf export   your markers as Leatrix_Maps_Icons.lua rows, to copy
 --   /lmf list     your markers per zone
 --   /lmf purge    forget retired markers
@@ -24,7 +25,6 @@ Forever.Editor = Editor
 
 local DB					-- LeaMapsForeverDB, set at ADDON_LOADED
 local editMode = false
-local moving				-- {mapID = , row = } while waiting for the Alt-click that moves a marker
 local TURN = math.pi / 12	-- 15 degrees per click
 local TWO_PI = 2 * math.pi
 
@@ -48,7 +48,7 @@ end
 -- A marker: {kind = "Arrow" | "Spirit" | "Dungeon", x, y (0-100), target (Arrow: map ID),
 -- rot (Arrow: radians, counter-clockwise from up), name, minLevel, maxLevel (Dungeon), retired}
 
-local EDIT_HINT = "|cff88ccffYour marker: Alt-click to edit|r"
+local EDIT_HINT = "|cff88ccffYour marker: drag to move, click to edit|r"
 
 local function RowNote(m)
 	if m.kind == "Dungeon" then
@@ -157,6 +157,8 @@ end
 -- Leatrix Maps makes its pins when the map changes. A new marker needs that; a moved,
 -- turned or deleted one is changed on its pin directly.
 
+local SyncHandles	-- (Drag handles, below)
+
 -- Show the map's parent then the map again (C_Map.OpenWorldMap, as Leatrix Maps itself
 -- uses, so the map isn't tainted); not in combat
 local function RefreshMap()
@@ -189,20 +191,6 @@ local function UpdatePinFrame(row)
 	local scale = pin:GetScale()
 	pin:ClearAllPoints()
 	pin:SetPoint("CENTER", canvas, "TOPLEFT", (canvas:GetWidth() * row[2] / 100) / scale, -(canvas:GetHeight() * row[3] / 100) / scale)
-end
-
--- One of your markers under the cursor (normalized map position)
-local function FindCustomAt(mapID, nx, ny)
-	local canvas = WorldMapFrame:GetCanvas()
-	local cw, ch = canvas:GetWidth(), canvas:GetHeight()
-	local radius = 20 * 0.7 / WorldMapFrame:GetCanvasScale()	-- about half a pin (Leatrix Maps draws them at 0.7)
-	local best, bestDist
-	for _, row in ipairs(CustomRows(mapID)) do
-		local dx, dy = (nx - row[2] / 100) * cw, (ny - row[3] / 100) * ch
-		local d = dx * dx + dy * dy
-		if d <= radius * radius and (not bestDist or d < bestDist) then best, bestDist = row, d end
-	end
-	return best
 end
 
 ----------------------------------------------------------------------
@@ -452,105 +440,150 @@ function ShowEditPanel(mapID, row)
 			{"Turn >>", function() Turn(row, -TURN) end},
 		})
 	end
-	AddButton("Move (then Alt-click)", function()
-		moving = {mapID = mapID, row = row}
-		HidePanel()
-		Print("Alt-click where the marker should go.")
-	end)
 	AddButton(DELETE, function()
 		ForgetMarker(mapID, m)
 		RemoveRow(mapID, row)
 		local pin = FindPinFrame(row)
 		if pin then pin:Hide() end
+		SyncHandles()
 		HidePanel()
 	end)
 	AddButton(DONE, HidePanel)
 	ShowPanel()
 end
 
-local function OnAltClick()
-	if InCombatLockdown() then
-		Print("Markers can't be edited in combat.")
-		return
-	end
-	local mapID = WorldMapFrame:GetMapID()
+-- An Alt-click on the map (normalized position nx, ny on mapID)
+local function OnAltClick(mapID, nx, ny)
 	local info = mapID and C_Map.GetMapInfo(mapID)
 	if not info or info.mapType < Enum.UIMapType.Zone then
 		Print("Markers go on zone maps. Open a zone first.")
 		return
 	end
-	local nx, ny = WorldMapFrame:GetNormalizedCursorPosition()
 	if not nx or nx < 0 or nx > 1 or ny < 0 or ny > 1 then return end
-	local x, y = Round1(nx * 100), Round1(ny * 100)
-
-	if moving then
-		local move = moving
-		moving = nil
-		if move.mapID ~= mapID then
-			Print("Move cancelled: that's a different map.")
-			return
-		end
-		local m = move.row.leaMapsCustom
-		m.x, m.y = x, y
-		move.row[2], move.row[3] = x, y
-		UpdatePinFrame(move.row)
-		return
-	end
-
-	local row = FindCustomAt(mapID, nx, ny)
-	if row then
-		ShowEditPanel(mapID, row)
-	else
-		ShowAddPanel(mapID, x, y)
-	end
+	ShowAddPanel(mapID, Round1(nx * 100), Round1(ny * 100))
 end
 
 ----------------------------------------------------------------------
--- Map clicks
+-- Clicks: an Alt layer over the map, and a handle over each of your markers
 ----------------------------------------------------------------------
 
--- Leatrix Maps follows an arrow (or opens a dungeon map) when its pin is clicked. Its click
--- handler runs before this one, so for an Alt-click in edit mode every row on the map is
--- given a kind it doesn't act on, from mouse down until this handler's mouse up.
-local stash, downX, downY, downMapID
+-- Clicks on the map itself would open the zone under the pointer (near a border, the next
+-- zone) or, on an arrow, Leatrix Maps' click catcher would follow it. So in edit mode, while
+-- Alt is held, an invisible frame of our own covers the map and takes the click, the way
+-- Leatrix Maps' click catcher does for its pins. Without Alt the map works as usual.
+local altLayer
 
-local function Unstash()
-	if not stash then return end
-	for row, kind in pairs(stash) do row[1] = kind end
-	stash = nil
+-- In edit mode each of your markers gets an invisible handle over its pin (above the Alt
+-- layer): drag it to move the marker, click it (left or right) to turn or delete it. The
+-- handle has the mouse, so dragging moves the marker instead of panning the map.
+local handles = {}
+local dragging
+
+local function FollowCursor(handle)
+	local nx, ny = WorldMapFrame:GetNormalizedCursorPosition()
+	if not nx then return end
+	local row = handle.row
+	row[2] = math.min(math.max(nx, 0), 1) * 100
+	row[3] = math.min(math.max(ny, 0), 1) * 100
+	UpdatePinFrame(row)
+end
+
+local function StopDrag(handle)
+	if dragging ~= handle then return end
+	dragging = nil
+	handle:SetScript("OnUpdate", nil)
+	local row = handle.row
+	local m = row.leaMapsCustom
+	m.x, m.y = Round1(row[2]), Round1(row[3])
+	row[2], row[3] = m.x, m.y
+	UpdatePinFrame(row)
+end
+
+local function CreateHandle()
+	local h = CreateFrame("Button", nil, WorldMapFrame:GetCanvas())
+	h:SetFrameStrata("HIGH")
+	h:SetFrameLevel(120)	-- over Leatrix Maps' pins (100) and click catcher, and the Alt layer
+	h:EnableMouse(true)
+	h:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	h:RegisterForDrag("LeftButton")
+	h:SetScript("OnMouseDown", function(self) self.dragged = false end)
+	h:SetScript("OnDragStart", function(self)
+		if InCombatLockdown() then return end
+		self.dragged = true
+		HidePanel()
+		dragging = self
+		self:SetScript("OnUpdate", FollowCursor)
+	end)
+	h:SetScript("OnDragStop", StopDrag)
+	h:SetScript("OnHide", StopDrag)
+	h:SetScript("OnClick", function(self)
+		if self.dragged or InCombatLockdown() then return end
+		ShowEditPanel(self.mapID, self.row)
+	end)
+	return h
+end
+
+-- Put a handle over each of your markers' pins on the map shown (Leatrix Maps remakes its
+-- pins when the map changes, so this runs often; it only changes handles that are wrong)
+function SyncHandles()
+	if dragging then return end
+	local want = {}
+	if editMode and WorldMapFrame:IsShown() and not InCombatLockdown() then
+		local mapID = WorldMapFrame:GetMapID()
+		for _, row in ipairs(CustomRows(mapID)) do
+			local pin = FindPinFrame(row)
+			if pin then want[#want + 1] = {row = row, pin = pin, mapID = mapID} end
+		end
+	end
+	for i = 1, math.max(#want, #handles) do
+		local w, h = want[i], handles[i]
+		if w then
+			if not h then
+				h = CreateHandle()
+				handles[i] = h
+			end
+			if h.row ~= w.row or h.pin ~= w.pin or not h:IsShown() then
+				h.row, h.pin, h.mapID = w.row, w.pin, w.mapID
+				h:ClearAllPoints()
+				h:SetAllPoints(w.pin)
+				h:Show()
+			end
+		elseif h and h:IsShown() then
+			h:Hide()
+			h.row, h.pin = nil, nil
+		end
+	end
 end
 
 local function InstallClickHooks()
-	local scroll = WorldMapFrame.ScrollContainer
-	scroll:HookScript("OnMouseDown", function(self, button)
-		Unstash()
-		if not editMode or button ~= "LeftButton" or not IsAltKeyDown() then return end
-		downMapID = WorldMapFrame:GetMapID()
-		downX, downY = GetCursorPosition()
-		stash = {}
-		for _, row in ipairs(Icons[downMapID] or {}) do
-			stash[row] = row[1]
-			row[1] = "LeaMapsEditing"
+	altLayer = CreateFrame("Frame", nil, WorldMapFrame.ScrollContainer)
+	altLayer:SetAllPoints()
+	altLayer:SetFrameStrata("HIGH")
+	altLayer:SetFrameLevel(110)
+	altLayer:EnableMouse(true)
+	altLayer:Hide()
+	altLayer:SetScript("OnMouseUp", function(self, button)
+		if button ~= "LeftButton" or InCombatLockdown() then return end
+		local nx, ny = WorldMapFrame:GetNormalizedCursorPosition()
+		OnAltClick(WorldMapFrame:GetMapID(), nx, ny)
+	end)
+
+	-- While the map is open: the Alt layer follows the Alt key, the handles follow the pins
+	local driver = CreateFrame("Frame", nil, WorldMapFrame)
+	local elapsed = 0
+	driver:SetScript("OnUpdate", function(self, delta)
+		local alt = editMode and IsAltKeyDown() and not InCombatLockdown() and not dragging
+		if alt ~= altLayer:IsShown() then altLayer:SetShown(alt) end
+		elapsed = elapsed + delta
+		if elapsed > 0.2 then
+			elapsed = 0
+			SyncHandles()
 		end
 	end)
-	scroll:HookScript("OnMouseUp", function(self, button)
-		if not stash then return end
-		Unstash()
-		if button ~= "LeftButton" then return end
-		if WorldMapFrame:GetMapID() ~= downMapID then
-			-- The click changed the map while the rows were stashed: draw them again
-			RefreshMap()
-			return
-		end
-		local x, y = GetCursorPosition()
-		if math.abs(x - downX) > 5 or math.abs(y - downY) > 5 then return end	-- a drag
-		OnAltClick()
-	end)
-	-- Never leave rows stashed (the button released off the map)
+
 	WorldMapFrame:HookScript("OnHide", function()
-		Unstash()
-		moving = nil
 		HidePanel()
+		SyncHandles()
 	end)
 end
 
@@ -570,7 +603,7 @@ local function UpdateBanner()
 		banner:SetPoint("TOP", 0, -8)
 		banner.text = banner:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		banner.text:SetPoint("CENTER")
-		banner.text:SetText("Marker edit mode: Alt-click to add, or Alt-click one of yours to change it  (/lmf edit to stop)")
+		banner.text:SetText("Marker edit mode: Alt-click to add. Drag yours to move, click to edit.  (/lmf edit to stop)")
 		banner:SetSize(banner.text:GetStringWidth() + 24, 28)
 	end
 	banner:SetShown(editMode)
@@ -578,10 +611,10 @@ end
 
 local function SetEditMode(on)
 	editMode = on
-	moving = nil
 	if not on then HidePanel() end
 	UpdateNotes()
 	if WorldMapFrame then UpdateBanner() end
+	if altLayer then SyncHandles() end
 	Print(on and "Edit mode on. Open the map and Alt-click to add a marker." or "Edit mode off.")
 end
 

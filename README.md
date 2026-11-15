@@ -7,7 +7,7 @@ This is an unofficial build. Report problems with the additions here, not to Lea
 ## What it adds
 
 - **The Tanaris–Riverglades boat for both factions.** Leatrix Maps marks it Horde, which hides it from Alliance players by default. [OpenMap](https://github.com/openmap-world/openmap)'s data and [Forever Atlas](https://wowforeveratlas.com/boat-routes-guide) both list it for both factions.
-- **Your own markers.** Type `/lmf edit`, open the map and Alt-click a zone to add a zone crossing, spirit healer or dungeon entrance, or Alt-click one of yours to turn, move or delete it. They're drawn by Leatrix Maps exactly like its own icons, and saved in `LeaMapsForeverDB` in your `WTF` folder. `/lmf export` shows them as rows to add here for everyone. A marker retires itself once Leatrix Maps has one like it (`/lmf list`, `/lmf purge`).
+- **Your own markers.** Type `/lmf edit`, open the map and Alt-click a zone to add a zone crossing, spirit healer or dungeon entrance. Drag one of yours to move it, or click it to turn or delete it. They're drawn by Leatrix Maps exactly like its own icons, and saved in `LeaMapsForeverDB` in your `WTF` folder. `/lmf export` shows them as rows to add here for everyone. A marker retires itself once Leatrix Maps has one like it (`/lmf list`, `/lmf purge`).
 
 Each addition is skipped automatically when Leatrix Maps catches up.
 
