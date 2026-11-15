@@ -43,7 +43,8 @@ def repository() -> str:
 def inputs_digest() -> str:
     """SHA-256 of everything a build is made from."""
     paths = sorted(p for p in build.SOURCE.rglob("*") if p.is_file())
-    paths += [build.HERE / name for name in build.FILES] + [build.HERE / "build.py"]
+    paths += [build.HERE / name for name in build.FILES] + [build.HERE / "build.py", build.patch.PATCH]
+    paths = [p for p in paths if p.exists()]
     digest = hashlib.sha256()
     for path in paths:
         digest.update(path.relative_to(build.ROOT).as_posix().encode() + b"\0")
@@ -65,6 +66,16 @@ def plus_releases(repo: str, upstream: str) -> dict[int, str]:
             if match := pattern.match(release["tag"]):
                 found[int(match.group(1))] = release["body"]
     return found
+
+
+def newest_plus(repo: str) -> str | None:
+    """The newest Leatrix Maps+ release of any Leatrix Maps version."""
+    output = run(
+        "gh", "api", "--paginate", f"repos/{repo}/releases?per_page=100",
+        "--jq", '.[] | select(.tag_name | test("-plus[.][0-9]+$")) | "\\(.created_at) \\(.tag_name)"',
+    )
+    tags = sorted(line.split(" ", 1) for line in output.splitlines() if line.strip())
+    return tags[-1][1] if tags else None
 
 
 def interface(folder: Path) -> int:
@@ -99,7 +110,16 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory(prefix="leatrix-maps-plus-") as temp:
         temp = Path(temp)
-        folder = build.build(temp / "build", f"plus.{n}")
+        try:
+            folder = build.build(temp / "build", f"plus.{n}")
+        except SystemExit:
+            # The patch conflicts with this Leatrix Maps: until it's fixed, keep players on the
+            # last Leatrix Maps+ rather than the original zip the mirror action just made latest
+            last = newest_plus(repo)
+            if last and not dry_run:
+                run("gh", "release", "edit", last, "--repo", repo, "--latest")
+                print(f"release: kept {last} as the latest release", file=sys.stderr)
+            raise
         zip_name = f"Leatrix_Maps-{version}-forever.zip"
         zip_path = temp / zip_name
         write_zip(folder, zip_path)

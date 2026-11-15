@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Build Leatrix Maps+: the mirrored Leatrix_Maps folder plus the files in forever/.
+"""Build Leatrix Maps+: the mirrored Leatrix_Maps folder with forever/leatrix.patch applied,
+plus the files in forever/.
 
 usage: python3 forever/build.py [out_dir]
 
@@ -13,7 +14,11 @@ release. forever/ has no .toc at its root, so the action leaves it alone.
 import re
 import shutil
 import sys
+import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import patch  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "Leatrix_Maps"
@@ -69,21 +74,34 @@ def upstream_version() -> str:
 
 
 def build(out: Path, suffix: str) -> Path:
-    """Write <out>/Leatrix_Maps with version <upstream>-<suffix>; returns the folder."""
+    """Write <out>/Leatrix_Maps with version <upstream>-<suffix>; returns the folder.
+
+    Built in a folder of its own outside the repository (forever/leatrix.patch is applied
+    there), then copied to <out>; a patch that doesn't apply stops the build."""
     dest = out / "Leatrix_Maps"
     if dest.resolve() == SOURCE.resolve():
         sys.exit("build: refusing to build over the mirrored folder")
-    if dest.exists():
-        shutil.rmtree(dest)
-    shutil.copytree(SOURCE, dest)
-    for name in FILES:
-        shutil.copy2(HERE / name, dest / name)
 
-    toc = dest / "Leatrix_Maps.toc"
-    with open(toc, encoding="utf-8", newline="") as f:
-        text = f.read()
-    with open(toc, "w", encoding="utf-8", newline="") as f:
-        f.write(patch_toc(text, suffix))
+    with tempfile.TemporaryDirectory(prefix="leatrix-maps-plus-build-") as temp:
+        work = Path(temp) / "Leatrix_Maps"
+        shutil.copytree(SOURCE, work)
+        ok, error = patch.apply_to(Path(temp))
+        if not ok:
+            sys.exit(f"build: forever/leatrix.patch doesn't apply to this Leatrix Maps ({upstream_version()}):\n"
+                     f"{error}\n\nUpstream changed lines the patch changes. Fix it with: python3 forever/patch.py apply")
+        for name in FILES:
+            shutil.copy2(HERE / name, work / name)
+
+        toc = work / "Leatrix_Maps.toc"
+        with open(toc, encoding="utf-8", newline="") as f:
+            text = f.read()
+        with open(toc, "w", encoding="utf-8", newline="") as f:
+            f.write(patch_toc(text, suffix))
+
+        if dest.exists():
+            shutil.rmtree(dest)
+        out.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(work, dest)
     return dest
 
 
