@@ -8,8 +8,8 @@
 -- does nothing once upstream catches up.
 --
 -- Sources:
---   Steamwheedle Port - Powderfuse Port boat serves both factions:
---     wowforeveratlas.com/boat-routes-guide ("Both factions"). Leatrix Maps marks it Horde,
+--   Steamwheedle Port - Powderfuse Port boat serves both factions: seen in game (2026-11-15),
+--     and wowforeveratlas.com/boat-routes-guide ("Both factions"). Leatrix Maps marks it Horde,
 --     which hides it from the Alliance by default. (OpenMap records no faction for any boat,
 --     so it neither confirms nor contradicts this.)
 --   No portals between Stormwind and Dalaran: seen in game (2026-11-15; neither end is there).

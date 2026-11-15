@@ -6,7 +6,7 @@ This is an unofficial build. Report problems with the additions here, not to Lea
 
 ## What it adds
 
-- **The Tanaris–Riverglades boat for both factions.** Leatrix Maps marks it Horde, which hides it from Alliance players by default. [Forever Atlas](https://wowforeveratlas.com/boat-routes-guide) lists it for both factions.
+- **The Tanaris–Riverglades boat for both factions.** Leatrix Maps marks it Horde, which hides it from Alliance players by default. It runs for both factions (checked in game, and [Forever Atlas](https://wowforeveratlas.com/boat-routes-guide) lists it so).
 - **No portals between Stormwind and Dalaran.** Neither is in WoW Forever at the moment, but Leatrix Maps shows both.
 - **The game's dungeon level ranges**, from its Group Finder via [OpenMap](https://github.com/openmap-world/openmap), for the 12 dungeons where Leatrix Maps' differ (for example Krol'dok Stronghold 40–47, Scarlet Monastery 30–46).
 - **Your own markers.** Type `/lmf edit`, open the map and Alt-click a zone to add a zone crossing, spirit healer or dungeon entrance. Drag one of yours to move it, or click it to turn or delete it. They're drawn by Leatrix Maps exactly like its own icons, and saved in `LeaMapsForeverDB` in your `WTF` folder. `/lmf export` shows them as rows to add here for everyone. A marker retires itself once Leatrix Maps has one like it (`/lmf list`, `/lmf purge`).
