@@ -3,6 +3,9 @@ name: Mirror from CurseForge
 on:
   schedule:
     - cron: "17 */2 * * *"
+  push:
+    branches: [main]
+    paths: ["forever/**"]
   workflow_dispatch:
 
 permissions:
@@ -19,3 +22,10 @@ jobs:
         with:
           project-id: 298842
           game-version-type-id: 88568 # WoW Classic "Forever" builds only
+
+      # Leatrix Maps+: build the mirrored version with forever/ and release it as the latest
+      # (over the original zip the action just released). Does nothing if already released.
+      - name: Release Leatrix Maps+
+        run: python3 forever/release.py
+        env:
+          GH_TOKEN: ${{ github.token }}
