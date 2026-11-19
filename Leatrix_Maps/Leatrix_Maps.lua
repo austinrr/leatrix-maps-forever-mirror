@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.32 (18th November 2026)
+	-- 	Leatrix Maps 1.60.33 (19th November 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.32"
+	LeaMapsLC["AddonVer"] = "1.60.33"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -4848,52 +4848,53 @@
 		if LeaMapsLC["ShowDungeonMaps"] == "On" then
 
 			-- Map art: [instance map ID] = {{map ID, level name, game map texture}, ...}
-			-- Maps in the addon folder use {map ID, level name, nil, x, y, nil, height, file} where file is the end of the file name ("2" is Leatrix_Maps_Dungeon_Art2)
-			-- Maps from DungeonJournal by Exehn (used with permission) are in Leatrix_Maps_Dungeon_Art, Art2 and Art3: the game maps with their boss skulls and some title banners covered,
-			-- (the other game maps are in Art3 to Art7 with their boss skulls covered too)
+			-- Maps in the addon folder use {map ID, level name, nil, x, y, nil, height, file} where file is the end of the file name ("2" is Leatrix_Maps_Dungeon_Art2, no file is Leatrix_Maps_Dungeon_Art)
+			-- Maps from DungeonJournal by Exehn (used with permission) are in Leatrix_Maps_Dungeon_Art and Art2: the game maps with their boss skulls and some title banners covered,
+			-- (the other game maps are in Art2 to Art4 with their boss skulls covered too)
 			-- the full Forever Wailing Caverns and the maps of the dungeons that are new in Forever (by Santiago Reyes, Atlas de Azeroth: Forever)
-			-- Maps that are not in the game use {map ID, level name, nil, x, y, nil, height} in Leatrix_Maps_Dungeon_Art (2048x4096, maps are 1024 wide and 683 high unless a height is given)
+			-- Maps that are not in the game use {map ID, level name, nil, x, y, nil, height} in Leatrix_Maps_Dungeon_Art (4096x4096, maps are 1024 wide and 683 high unless a height is given)
 			-- Scholomance is not in the game in its classic layout and the game's Wailing Caverns map is missing the Forever layout, so their maps are in Leatrix_Maps_Dungeon_Art too
 			local dungeonArt = {
-				[389] = {{213, nil, nil, 0, 0, nil, 683, "2"}}, -- Ragefire Chasm
-				[36] = {{291, nil, nil, 1024, 0, nil, 683, "2"}, {292, L["Ironclad Cove"], nil, 0, 684, nil, 683, "2"}}, -- The Deadmines
+				[389] = {{213, nil, nil, 2048, 0, nil, 683}}, -- Ragefire Chasm
+				[36] = {{291, nil, nil, 3072, 0, nil, 683}, {292, L["Ironclad Cove"], nil, 2048, 684, nil, 683}}, -- The Deadmines
 				[43] = {{279, nil, nil, 1024, 2752}}, -- Wailing Caverns
-				[33] = {{310, L["The Courtyard"], nil, 1024, 684, nil, 683, "2"}, {316, L["The Wall Walk"], nil, 0, 1368, nil, 683, "2"}, {315, L["Lord Godfrey's Chamber"], nil, 1024, 1368, nil, 683, "2"}}, -- Shadowfang Keep
-				[34] = {{225, nil, nil, 0, 2052, nil, 683, "2"}}, -- The Stockade
-				[48] = {{221, L["The Pool of Ask'Ar"], nil, 1024, 2052, nil, 683, "2"}, {222, L["Moonshrine Sanctum"], nil, 0, 2736, nil, 683, "2"}, {223, L["The Forgotten Pool"], nil, 1024, 2736, nil, 683, "2"}}, -- Blackfathom Deeps
-				[90] = {{226, L["The Hall of Gears"], nil, 0, 0, nil, 683, "3"}, {227, L["The Dormitory"], nil, 1024, 0, nil, 683, "3"}, {228, L["Launch Bay"], nil, 0, 684, nil, 683, "3"}, {229, L["Tinkers' Court"], nil, 1024, 684, nil, 683, "3"}}, -- Gnomeregan
-				[47] = {{301, nil, nil, 0, 1368, nil, 683, "3"}}, -- Razorfen Kraul
-				[189] = {{302, L["Graveyard"], nil, 1024, 1368, nil, 683, "3"}, {303, L["Library"], nil, 0, 2052, nil, 683, "3"}, {304, L["Armory"], nil, 1024, 2052, nil, 683, "3"}, {305, L["Cathedral"], nil, 0, 2736, nil, 683, "3"}}, -- Scarlet Monastery
-				[129] = {{300, nil, nil, 1024, 2736, nil, 683, "3"}}, -- Razorfen Downs
-				[70] = {{230, L["Hall of the Keepers"], nil, 0, 0, nil, 683, "4"}, {231, L["Khaz'Goroth's Seat"], nil, 1024, 0, nil, 683, "4"}}, -- Uldaman
-				[209] = {{219, nil, nil, 0, 684, nil, 683, "4"}}, -- Zul'Farrak
-				[349] = {{280, L["Caverns of Maraudon"], nil, 1024, 684, nil, 683, "4"}, {281, L["Zaetar's Grave"], nil, 0, 1368, nil, 683, "4"}}, -- Maraudon
-				[109] = {{220, nil, nil, 1024, 1368, nil, 683, "4"}}, -- Temple of Atal'Hakkar
-				[230] = {{242, L["Detention Block"], nil, 0, 2052, nil, 683, "4"}, {243, L["Shadowforge City"], nil, 1024, 2052, nil, 683, "4"}}, -- Blackrock Depths
-				[229] = {{250, L["Tazz'Alor"], nil, 0, 2736, nil, 683, "4"}, {251, L["Skitterweb Tunnels"], nil, 1024, 2736, nil, 683, "4"}, {252, L["Hordemar City"], nil, 0, 0, nil, 683, "5"}, {253, L["Hall of Blackhand"], nil, 1024, 0, nil, 683, "5"}, {254, L["Halycon's Lair"], nil, 0, 684, nil, 683, "5"}, {255, L["Chamber of Battle"], nil, 1024, 684, nil, 683, "5"}}, -- Blackrock Spire
-				[409] = {{232, nil, nil, 0, 1368, nil, 683, "5"}}, -- Molten Core
-				[469] = {{287, L["Dragonmaw Garrison"], nil, 1024, 1368, nil, 683, "5"}, {288, L["Halls of Strife"], nil, 0, 2052, nil, 683, "5"}, {289, L["Crimson Laboratories"], nil, 1024, 2052, nil, 683, "5"}, {290, L["Nefarian's Lair"], nil, 0, 2736, nil, 683, "5"}}, -- Blackwing Lair
-				[429] = {{235, L["Gordok Commons"], nil, 1024, 2736, nil, 683, "5"}, {236, L["Capital Gardens"], nil, 0, 0, nil, 683, "6"}, {237, L["Court of the Highborne"], nil, 1024, 0, nil, 683, "6"}, {238, L["Prison of Immol'Thar"], nil, 0, 684, nil, 683, "6"}, {239, L["Warpwood Quarter"], nil, 1024, 684, nil, 683, "6"}, {240, L["The Shrine of Eldretharr"], nil, 0, 1368, nil, 683, "6"}}, -- Dire Maul
+				[33] = {{310, L["The Courtyard"], nil, 3072, 684, nil, 683}, {316, L["The Wall Walk"], nil, 2048, 1368, nil, 683}, {315, L["Lord Godfrey's Chamber"], nil, 3072, 1368, nil, 683}}, -- Shadowfang Keep
+				[34] = {{225, nil, nil, 2048, 2052, nil, 683}}, -- The Stockade
+				[48] = {{221, L["The Pool of Ask'Ar"], nil, 3072, 2052, nil, 683}, {222, L["Moonshrine Sanctum"], nil, 2048, 2736, nil, 683}, {223, L["The Forgotten Pool"], nil, 3072, 2736, nil, 683}}, -- Blackfathom Deeps
+				[90] = {{226, L["The Hall of Gears"], nil, 0, 0, nil, 683, "2"}, {227, L["The Dormitory"], nil, 1024, 0, nil, 683, "2"}, {228, L["Launch Bay"], nil, 0, 684, nil, 683, "2"}, {229, L["Tinkers' Court"], nil, 1024, 684, nil, 683, "2"}}, -- Gnomeregan
+				[47] = {{301, nil, nil, 0, 1368, nil, 683, "2"}}, -- Razorfen Kraul
+				[189] = {{302, L["Graveyard"], nil, 1024, 1368, nil, 683, "2"}, {303, L["Library"], nil, 0, 2052, nil, 683, "2"}, {304, L["Armory"], nil, 1024, 2052, nil, 683, "2"}, {305, L["Cathedral"], nil, 0, 2736, nil, 683, "2"}}, -- Scarlet Monastery
+				[129] = {{300, nil, nil, 1024, 2736, nil, 683, "2"}}, -- Razorfen Downs
+				[70] = {{230, L["Hall of the Keepers"], nil, 2048, 0, nil, 683, "2"}, {231, L["Khaz'Goroth's Seat"], nil, 3072, 0, nil, 683, "2"}}, -- Uldaman
+				[209] = {{219, nil, nil, 2048, 684, nil, 683, "2"}}, -- Zul'Farrak
+				[349] = {{280, L["Caverns of Maraudon"], nil, 3072, 684, nil, 683, "2"}, {281, L["Zaetar's Grave"], nil, 2048, 1368, nil, 683, "2"}}, -- Maraudon
+				[109] = {{220, nil, nil, 3072, 1368, nil, 683, "2"}}, -- Temple of Atal'Hakkar
+				[230] = {{242, L["Detention Block"], nil, 2048, 2052, nil, 683, "2"}, {243, L["Shadowforge City"], nil, 3072, 2052, nil, 683, "2"}}, -- Blackrock Depths
+				[229] = {{250, L["Tazz'Alor"], nil, 2048, 2736, nil, 683, "2"}, {251, L["Skitterweb Tunnels"], nil, 3072, 2736, nil, 683, "2"}, {252, L["Hordemar City"], nil, 0, 0, nil, 683, "3"}, {253, L["Hall of Blackhand"], nil, 1024, 0, nil, 683, "3"}, {254, L["Halycon's Lair"], nil, 0, 684, nil, 683, "3"}, {255, L["Chamber of Battle"], nil, 1024, 684, nil, 683, "3"}}, -- Blackrock Spire
+				[409] = {{232, nil, nil, 0, 1368, nil, 683, "3"}}, -- Molten Core
+				[469] = {{287, L["Dragonmaw Garrison"], nil, 1024, 1368, nil, 683, "3"}, {288, L["Halls of Strife"], nil, 0, 2052, nil, 683, "3"}, {289, L["Crimson Laboratories"], nil, 1024, 2052, nil, 683, "3"}, {290, L["Nefarian's Lair"], nil, 0, 2736, nil, 683, "3"}}, -- Blackwing Lair
+				[429] = {{235, L["Gordok Commons"], nil, 1024, 2736, nil, 683, "3"}, {236, L["Capital Gardens"], nil, 2048, 0, nil, 683, "3"}, {237, L["Court of the Highborne"], nil, 3072, 0, nil, 683, "3"}, {238, L["Prison of Immol'Thar"], nil, 2048, 684, nil, 683, "3"}, {239, L["Warpwood Quarter"], nil, 3072, 684, nil, 683, "3"}, {240, L["The Shrine of Eldretharr"], nil, 2048, 1368, nil, 683, "3"}}, -- Dire Maul
 				[289] = {{306, L["The Reliquary"], nil, 0, 0}, {307, L["Chamber of Summoning"], nil, 1024, 0}, {308, L["The Upper Study"], nil, 0, 683}, {309, L["Headmaster's Study"], nil, 1024, 683}}, -- Scholomance
-				[329] = {{317, L["Crusader's Square"], nil, 1024, 1368, nil, 683, "6"}, {318, L["The Gauntlet"], nil, 0, 2052, nil, 683, "6"}}, -- Stratholme
-				[309] = {{233, nil, nil, 1024, 2052, nil, 683, "6"}}, -- Zul'Gurub
-				[249] = {{248, nil, nil, 0, 2736, nil, 683, "6"}}, -- Onyxia's Lair
-				[509] = {{247, nil, nil, 1024, 2736, nil, 683, "6"}}, -- Ruins of Ahn'Qiraj
-				[531] = {{319, L["The Hive Undergrounds"], nil, 0, 0, nil, 683, "7"}, {320, L["The Temple Gates"], nil, 1024, 0, nil, 683, "7"}, {321, L["Vault of C'Thun"], nil, 0, 684, nil, 683, "7"}}, -- Temple of Ahn'Qiraj
-				[533] = {{162, L["The Construct Quarter"], nil, 1024, 684, nil, 683, "7"}, {163, L["The Arachnid Quarter"], nil, 0, 1368, nil, 683, "7"}, {164, L["The Military Quarter"], nil, 1024, 1368, nil, 683, "7"}, {165, L["The Plague Quarter"], nil, 0, 2052, nil, 683, "7"}, {166, L["The Lower Necropolis"], nil, 1024, 2052, nil, 683, "7"}, {167, L["The Upper Necropolis"], nil, 0, 2736, nil, 683, "7"}}, -- Naxxramas
+				[329] = {{317, L["Crusader's Square"], nil, 3072, 1368, nil, 683, "3"}, {318, L["The Gauntlet"], nil, 2048, 2052, nil, 683, "3"}}, -- Stratholme
+				[309] = {{233, nil, nil, 3072, 2052, nil, 683, "3"}}, -- Zul'Gurub
+				[249] = {{248, nil, nil, 2048, 2736, nil, 683, "3"}}, -- Onyxia's Lair
+				[509] = {{247, nil, nil, 3072, 2736, nil, 683, "3"}}, -- Ruins of Ahn'Qiraj
+				[531] = {{319, L["The Hive Undergrounds"], nil, 0, 0, nil, 683, "4"}, {320, L["The Temple Gates"], nil, 1024, 0, nil, 683, "4"}, {321, L["Vault of C'Thun"], nil, 0, 684, nil, 683, "4"}}, -- Temple of Ahn'Qiraj
+				[533] = {{162, L["The Construct Quarter"], nil, 1024, 684, nil, 683, "4"}, {163, L["The Arachnid Quarter"], nil, 0, 1368, nil, 683, "4"}, {164, L["The Military Quarter"], nil, 1024, 1368, nil, 683, "4"}, {165, L["The Plague Quarter"], nil, 0, 2052, nil, 683, "4"}, {166, L["The Lower Necropolis"], nil, 1024, 2052, nil, 683, "4"}, {167, L["The Upper Necropolis"], nil, 0, 2736, nil, 683, "4"}}, -- Naxxramas
 				-- Dungeons that are new in Forever use {map key, level name, nil, x, y, nil, height} in Leatrix_Maps_Dungeon_Art.
 				-- Pins were from MapUtils by D4KiR (used with permission) and are now updated from DungeonJournal.
 				[2959] = {{"2959", L["City of Dalaran"] .. " (1)", nil, 0, 1368, nil, 683}, {"2959_2", L["City of Dalaran"] .. " (2)", nil, 1024, 1368, nil, 683}}, -- City of Dalaran
 				[2998] = {{"2998", nil, nil, 0, 2060, nil, 683}}, -- Excavation Site: Wetlands
 				[2999] = {{"2999", nil, nil, 1024, 2060, nil, 683}}, -- The Ruins of Lordaeron
 				[3065] = {{"3065", nil, nil, 0, 2752, nil, 683}}, -- The Hall of Thanes
-				[2970] = {{"2970", nil, nil, 0, 0, nil, 683, "8"}}, -- The Drowned City
-				[3039] = {{"3039", nil, nil, 1024, 0, nil, 683, "8"}}, -- Krol'dok Stronghold
-				[2994] = {{"2994", nil, nil, 0, 684, nil, 683, "8"}}, -- Alcaz Prison
-				[3001] = {{"3001", nil, nil, 1024, 2736, nil, 683, "7"}}, -- The Shaper's Terrace
+				[2970] = {{"2970", nil, nil, 2048, 0, nil, 683, "4"}}, -- The Drowned City
+				[3039] = {{"3039", nil, nil, 3072, 0, nil, 683, "4"}}, -- Krol'dok Stronghold
+				[2994] = {{"2994", nil, nil, 2048, 684, nil, 683, "4"}}, -- Alcaz Prison
+				[3001] = {{"3001", nil, nil, 1024, 2736, nil, 683, "4"}}, -- The Shaper's Terrace
+				[2974] = {{"2974", L["Blackmaw Grove"], nil, 3072, 684, nil, 683, "4"}, {"2974_2", L["Festering Grotto"], nil, 2048, 1368, nil, 683, "4"}, {"2974_3", L["Depths of the Fallen Grove"], nil, 3072, 1368, nil, 683, "4"}, {"2974_4", L["Depths of the Elders"], nil, 2048, 2052, nil, 683, "4"}, {"2974_5", L["Depths of the Burrow"], nil, 3072, 2052, nil, 683, "4"}, {"2974_6", L["Depths of Forbidden Magic"], nil, 2048, 2736, nil, 683, "4"}}, -- Blackmaw Hold
 			}
 
-			-- Game maps in the addon folder for game locales that do not have them (none now, all dungeon maps are in Leatrix_Maps_Dungeon_Art to Art7)
+			-- Game maps in the addon folder for game locales that do not have them (none now, all dungeon maps are in Leatrix_Maps_Dungeon_Art to Art4)
 			-- [game map texture] = map number (Leatrix_Maps_Dungeon_01, 16x16 tiles of 256 pixels, 12 tiles per map in order)
 			local bundledArt = {}
 
@@ -4973,11 +4974,11 @@
 				[225] = {
 					{"entrance", 0.500, 0.815},
 					{"boss", 0.440, 0.445, 1696, L["Targorr the Dread"], 24, 517, 1},
-					{"boss", 0.320, 0.380, 1666, L["Kam Deepfury"], 27, 825, 1},
+					{"boss", 0.692, 0.310, 1666, L["Kam Deepfury"], 27, 825, 1},
 					{"boss", 0.780, 0.455, 1717, L["Hamhock"], 28, 3250, 1},
-					{"boss", 0.215, 0.255, 1716, L["Bazil Thredd"], 29, 1621, 1},
-					{"boss", 0.735, 0.575, 1663, L["Dextren Ward"], 26, 2149, 1},
-					{"boss", 0.500, 0.190, 1720, L["Bruegal Ironknuckle"], 26, 2142, 2},
+					{"boss", 0.857, 0.510, 1716, L["Bazil Thredd"], 29, 1621, 1},
+					{"boss", 0.146, 0.214, 1663, L["Dextren Ward"], 26, 2149, 1},
+					{"boss", 0.381, 0.241, 1720, L["Bruegal Ironknuckle"], 26, 2142, 2},
 				},
 				[221] = {
 					{"entrance", 0.455, 0.085},
@@ -5381,9 +5382,9 @@
 				},
 				["2998"] = {
 					{"entrance", 0.888, 0.258},
-					{"boss", 0.550, 0.361, 260322, L["Saltspine"], nil, 144209, 1},
-					{"boss", 0.324, 0.687, 260326, L["Relic Guardian"], nil, 144224, 1},
-					{"boss", 0.305, 0.484, 260325, L["Shadetooth"], nil, 144210, 1},
+					{"boss", 0.550, 0.361, 260322, L["Saltspine"], 28, 144209, 1},
+					{"boss", 0.324, 0.687, 260326, L["Relic Guardian"], 31, 144224, 1},
+					{"boss", 0.305, 0.484, 260325, L["Shadetooth"], 29, 144210, 1},
 					{"boss", 0.082, 0.405, 260808, L["Highland Horror"], 28, 9010, 1},
 				},
 				["2999"] = {
@@ -5411,6 +5412,41 @@
 				},
 				["2994"] = {
 					{"entrance", 0.353, 0.160},
+				},
+				-- Blackmaw Hold (boss and level pins placed from the forg.gg floor maps, boss details from DungeonJournal)
+				["2974"] = {
+					{"entrance", 0.181, 0.741},
+					{"level", 0.513, 0.319, "2974_2"},
+					{"level", 0.713, 0.319, "2974_2"},
+					{"level", 0.791, 0.511, "2974_3"},
+					{"boss", 0.384, 0.653, 247206, L["Impaan the Imprisoner"], 57, 130432, 1},
+					{"boss", 0.735, 0.570, 247198, L["Bonesnout the Unbroken"], 58, 130427, 1},
+				},
+				["2974_2"] = {
+					{"level", 0.572, 0.783, "2974", true},
+					{"level", 0.806, 0.661, "2974", true},
+					{"boss", 0.290, 0.412, 247195, L["Withermaw"], 58, 140708, 1},
+				},
+				["2974_3"] = {
+					{"level", 0.294, 0.966, "2974", true},
+					{"level", 0.363, 0.361, "2974_4"},
+					{"level", 0.290, 0.668, "2974_5"},
+					{"boss", 0.560, 0.310, 247231, L["Unbound Spirit"], 59, 131644, 1},
+				},
+				["2974_4"] = {
+					{"level", 0.850, 0.281, "2974_3", true},
+					{"level", 0.453, 0.808, "2974_5"},
+					{"boss", 0.440, 0.325, 247209, L["Elder Shaman Bloodmane"], 59, 130440, 1},
+				},
+				["2974_5"] = {
+					{"level", 0.584, 0.664, "2974_3", true},
+					{"level", 0.441, 0.682, "2974_4", true},
+					{"level", 0.648, 0.280, "2974_6"},
+					{"boss", 0.573, 0.347, 247207, L["Blackmaw Behemoth"], 59, 130436, 1},
+				},
+				["2974_6"] = {
+					{"level", 0.740, 0.770, "2974_5", true},
+					{"boss", 0.519, 0.471, 247234, L["Varrox Bleakhoof"], 60, 130447, 1},
 				},
 				[308] = {
 					{"boss", 0.316, 0.643, 11622, L["Rattlegore"], 61, 12073, 1},
@@ -5936,7 +5972,7 @@
 						-- Maps in the addon folder (Scholomance and dungeons that are new in Forever)
 						local x, y, h = info[4], info[5], info[7] or 683
 						canvas.art:SetTexture(info[8] and artPath .. info[8] or artPath)
-						canvas.art:SetTexCoord((x + 0.5) / 2048, (x + 1024 - 0.5) / 2048, (y + 0.5) / 4096, (y + h - 0.5) / 4096)
+						canvas.art:SetTexCoord((x + 0.5) / 4096, (x + 1024 - 0.5) / 4096, (y + 0.5) / 4096, (y + h - 0.5) / 4096)
 					end
 					view.zoom, view.x, view.y = 1, 0, 0
 					UpdatePins(info[1])
@@ -6106,6 +6142,7 @@
 				{2970, "The Drowned City"},
 				{3039, "Krol'dok Stronghold"},
 				{2994, "Alcaz Prison"},
+				{2974, "Blackmaw Hold"},
 				{3001, "The Shaper's Terrace"},
 			}
 
@@ -6196,6 +6233,7 @@
 				[L["The Drowned City"]] = {2970},
 				[L["Krol'dok Stronghold"]] = {3039},
 				[L["Alcaz Prison"]] = {2994},
+				[L["Blackmaw Hold"]] = {2974},
 				[L["Shaper's Terrace"]] = {3001},
 			}
 
@@ -8156,8 +8194,11 @@
 			LeaMapsLC:MakeCB(poiFrame, "ShowSpiritHealers", "Show spirit healers", 16, -172, false, "If checked, spirit healers will be shown.")
 			LeaMapsLC:MakeCB(poiFrame, "ShowZoneCrossings", "Show zone crossings", 16, -192, false, "If checked, zone crossings will be shown.|n|nThese are arrows that indicate the zone exit pathways.")
 
-			local PoiFooter = LeaMapsLC:MakeFT(poiFrame, "For the settings above, you can show opposing faction points of interest too where applicable.", 16, 380, 136)
+			local PoiFooter = LeaMapsLC:MakeTx(poiFrame, "For the settings above, you can show opposing faction points of interest too where applicable.", 16, -232)
+			PoiFooter:SetWidth(380); PoiFooter:SetJustifyH("LEFT"); PoiFooter:SetWordWrap(true)
 			LeaMapsLC:MakeCB(poiFrame, "ShowOpposingPoi", "Show opposing faction points of interest", 16, -292, false, "If checked, points of interest belonging to the opposing faction will be shown.|n|nThis applies to flight points, boats, zeppelins and trams, and portals.")
+			LeaMapsCB["ShowOpposingPoi"]:ClearAllPoints()
+			LeaMapsCB["ShowOpposingPoi"]:SetPoint("TOPLEFT", PoiFooter, "BOTTOMLEFT", 0, -6)
 
 			-- Function to refresh points of interest
 			local function SetPointsOfInterest()
@@ -10256,14 +10297,6 @@
 		LeaMapsCB[frame]:GetHighlightTexture():SetTexCoord(0, 1, 0, 1)
 		LeaMapsCB[frame].tiptext = L[tip]
 		LeaMapsCB[frame]:SetScript("OnEnter", LeaMapsLC.TipSee)
-	end
-
-	-- Show a footer
-	function LeaMapsLC:MakeFT(frame, text, left, width, bottom)
-		local footer = LeaMapsLC:MakeTx(frame, text, left, bottom)
-		footer:SetWidth(width); footer:SetJustifyH("LEFT"); footer:SetWordWrap(true); footer:ClearAllPoints()
-		footer:SetPoint("BOTTOMLEFT", left, bottom)
-		return footer
 	end
 
 	-- Create a slider control
