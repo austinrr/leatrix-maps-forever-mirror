@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.33 (19th November 2026)
+	-- 	Leatrix Maps 1.60.34 (20th November 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.33"
+	LeaMapsLC["AddonVer"] = "1.60.34"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -4924,7 +4924,7 @@
 				},
 				[279] = {
 					{"entrance", 0.465, 0.590},
-					{"boss", 0.310, 0.430, 3671, L["Lady Anacondra <Fanglord>"], 20, 4313, 1},
+					{"boss", 0.305, 0.432, 3671, L["Lady Anacondra <Fanglord>"], 20, 4313, 1},
 					{"boss", 0.155, 0.570, 3669, L["Lord Cobrahn <Fanglord>"], 20, 4213, 1},
 					{"boss", 0.385, 0.350, 3653, L["Kresh"], 20, 5126, 1},
 					{"boss", 0.856, 0.289, 3670, L["Lord Pythas <Fanglord>"], 21, 4214, 1},
@@ -4973,7 +4973,7 @@
 				},
 				[225] = {
 					{"entrance", 0.500, 0.815},
-					{"boss", 0.440, 0.445, 1696, L["Targorr the Dread"], 24, 517, 1},
+					{"boss", 0.424, 0.464, 1696, L["Targorr the Dread"], 24, 517, 1},
 					{"boss", 0.692, 0.310, 1666, L["Kam Deepfury"], 27, 825, 1},
 					{"boss", 0.780, 0.455, 1717, L["Hamhock"], 28, 3250, 1},
 					{"boss", 0.857, 0.510, 1716, L["Bazil Thredd"], 29, 1621, 1},
@@ -4992,7 +4992,7 @@
 					{"level", 0.470, 0.700, 223},
 					{"boss", 0.525, 0.810, 4832, L["Twilight Lord Kelris"], 27, 4939, 1},
 					{"boss", 0.855, 0.860, 4829, L["Aku'mai"], 28, 2837, 1},
-					{"boss", 0.325, 0.700, 12902, L["Lorgus Jett"], 26, 12822, 1},
+					{"boss", 0.338, 0.723, 12902, L["Lorgus Jett"], 26, 12822, 1},
 					{"boss", 0.420, 0.720, 12876, L["Baron Aquanis"], 28, 110, 1},
 				},
 				[223] = {
@@ -5038,9 +5038,9 @@
 					{"entrance", 0.841, 0.831},
 					{"boss", 0.724, 0.600, 3983, L["Interrogator Vishas"], 32, 2044, 1},
 					{"boss", 0.246, 0.566, 4543, L["Bloodmage Thalnos"], 34, 11396, 1},
-					{"boss", 0.325, 0.660, 6490, L["Azshir the Sleepless"], 33, 5534, 2},
-					{"boss", 0.400, 0.460, 6488, L["Fallen Champion"], 33, 5230, 2},
-					{"boss", 0.400, 0.660, 6489, L["Ironspine"], 33, 5231, 2},
+					{"boss", 0.355, 0.664, 6490, L["Azshir the Sleepless"], 33, 5534, 2},
+					{"boss", 0.409, 0.466, 6488, L["Fallen Champion"], 33, 5230, 2},
+					{"boss", 0.416, 0.679, 6489, L["Ironspine"], 33, 5231, 2},
 				},
 				[303] = {
 					{"entrance", 0.130, 0.248},
@@ -5242,8 +5242,8 @@
 					{"boss", 0.495, 0.180, 10808, L["Timmy the Cruel"], 58, 571, 2},
 					{"entrance", 0.675, 0.877},
 					{"level", 0.900, 0.330, 318, true},
-					{"boss", 0.574, 0.652, 10393, L["Skul"], 58, 2606, 2},
-					{"boss", 0.605, 0.327, 10558, L["Hearthsinger Forresten"], 57, 10482, 2},
+					{"boss", 0.575, 0.697, 10393, L["Skul"], 58, 2606, 2},
+					{"boss", 0.598, 0.267, 10558, L["Hearthsinger Forresten"], 57, 10482, 2},
 					{"boss", 0.734, 0.204, 10516, L["The Unforgiven"], 57, 10771, 1},
 					{"boss", 0.298, 0.405, 11032, L["Malor the Zealous"], 60, 10458, 1},
 					{"boss", 0.042, 0.510, 10997, L["Cannon Master Willey"], 60, 10674, 1},
@@ -5459,6 +5459,22 @@
 				},
 			}
 
+			-- Possible spawn spots for bosses that spawn in one of several places: [npc ID] = {{x, y}, ...}
+			-- Each spot was checked against the cmangos Classic spawn data, the forg.gg maps and written guides
+			local graveyardRares = {{0.416, 0.679}, {0.409, 0.466}, {0.367, 0.439}, {0.355, 0.664}, {0.262, 0.691}, {0.242, 0.527}}
+			local spawnSpots = {
+				[1696] = {{0.499, 0.242}, {0.424, 0.464}, {0.578, 0.552}, {0.313, 0.406}}, -- Targorr the Dread (The Stockade)
+				[1663] = {{0.146, 0.214}, {0.250, 0.165}, {0.175, 0.417}}, -- Dextren Ward (The Stockade)
+				[1720] = {{0.381, 0.241}, {0.325, 0.411}, {0.616, 0.483}, {0.615, 0.251}}, -- Bruegal Ironknuckle (The Stockade)
+				[3671] = {{0.305, 0.432}, {0.281, 0.319}, {0.470, 0.456}, {0.403, 0.274}}, -- Lady Anacondra (Wailing Caverns)
+				[12902] = {{0.388, 0.200}, {0.441, 0.234}, {0.354, 0.483}, {0.338, 0.723}}, -- Lorgus Jett (Blackfathom Deeps)
+				[6490] = graveyardRares, -- Azshir the Sleepless (Scarlet Monastery Graveyard)
+				[6488] = graveyardRares, -- Fallen Champion (Scarlet Monastery Graveyard)
+				[6489] = graveyardRares, -- Ironspine (Scarlet Monastery Graveyard)
+				[10393] = {{0.815, 0.438}, {0.575, 0.697}}, -- Skul (Stratholme)
+				[10558] = {{0.847, 0.454}, {0.851, 0.275}, {0.639, 0.248}, {0.598, 0.267}}, -- Hearthsinger Forresten (Stratholme)
+			}
+
 			-- Settings
 			local artPath = "Interface\\AddOns\\Leatrix_Maps\\Leatrix_Maps_Dungeon_Art"
 			local pinPath = "Interface\\AddOns\\Leatrix_Maps\\Leatrix_Maps.blp"
@@ -5512,6 +5528,8 @@
 			local view = {zoom = 1, x = 0, y = 0, baseW = 0, baseH = 0}
 			local pins, pinRows = {}, nil
 			local Refresh, SelectLevel, HideOverlay
+			local HighlightSpots, SpotTooltip
+			local PinOnLeave
 			local previewID, previewIndex, previewMapID -- Instance shown with /ltm dun or a dungeon icon click (and the world map it was opened on)
 
 			-- Create overlay (covers the map canvas)
@@ -5610,7 +5628,7 @@
 					local pin = pins[i]
 					if pin:IsShown() then
 						pin:ClearAllPoints()
-						pin:SetPoint("CENTER", canvas, "TOPLEFT", view.baseW * view.zoom * pin.row[2], -view.baseH * view.zoom * pin.row[3])
+						pin:SetPoint("CENTER", canvas, "TOPLEFT", view.baseW * view.zoom * pin.x, -view.baseH * view.zoom * pin.y)
 					end
 				end
 			end
@@ -5711,7 +5729,9 @@
 				local row = pin.row
 				tip:SetScale(GameTooltip:GetScale())
 				tip:SetOwner(pin, "ANCHOR_RIGHT")
-				if row[1] == "boss" then
+				if pin.spot then
+					SpotTooltip(pin)
+				elseif row[1] == "boss" then
 					tip:SetText(row[5], 1, 0.82, 0)
 					if row[8] == 2 or row[8] == 4 then
 						tip:AddLine(L["Rare"], 0.7, 0.8, 1)
@@ -5737,8 +5757,9 @@
 				tip:Show()
 			end
 
-			local function PinOnLeave(pin)
+			PinOnLeave = function(pin)
 				if tip:IsOwned(pin) then tip:Hide() end
+				HighlightSpots()
 			end
 
 			local function PinOnClick(pin, button)
@@ -5756,6 +5777,122 @@
 				mask:SetAllPoints(texture)
 				mask:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
 				texture:AddMaskTexture(mask)
+			end
+
+			-- Function to add a pulsing gold ring (grows and fades about once a second, only plays while shown)
+			local function AddPulse(owner, anchor)
+				local pulse = owner:CreateTexture(nil, "OVERLAY", nil, 3)
+				pulse:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+				pulse:SetTexCoord(0, 0.6, 0, 0.6)
+				pulse:SetBlendMode("ADD")
+				pulse:SetVertexColor(1, 0.82, 0)
+				pulse:SetPoint("CENTER", anchor, "CENTER")
+				pulse:Hide()
+				local ag = pulse:CreateAnimationGroup()
+				ag:SetLooping("REPEAT")
+				local grow = ag:CreateAnimation("Scale")
+				grow:SetScale(1.5, 1.5)
+				grow:SetDuration(1)
+				local fade = ag:CreateAnimation("Alpha")
+				fade:SetFromAlpha(1)
+				fade:SetToAlpha(0)
+				fade:SetDuration(1)
+				pulse.ag = ag
+				return pulse
+			end
+
+			local function StartPulse(pulse, size)
+				pulse:SetSize(size, size)
+				pulse:Show()
+				pulse.ag:Play()
+			end
+
+			local function StopPulse(pulse)
+				if pulse:IsShown() then
+					pulse.ag:Stop()
+					pulse:Hide()
+				end
+			end
+
+			-- Possible spawn spots: a boss with several spots gets the same faded boss pin on every spot (no preferred spot)
+			-- Function to pulse a ring on every spot of the hovered boss (or of any boss sharing the hovered spot)
+			HighlightSpots = function(hovered)
+				for i = 1, #pins do
+					local pin = pins[i]
+					local match
+					if hovered and pin.spot and pin:IsShown() then
+						for j = 1, #pin.spot do
+							for k = 1, #hovered.spot do
+								if pin.spot[j] == hovered.spot[k] then match = true; break end
+							end
+							if match then break end
+						end
+					end
+					if match then
+						StartPulse(pin.pulse, pin.ring:GetWidth())
+					else
+						StopPulse(pin.pulse)
+					end
+				end
+			end
+
+			-- Spot tooltip (every spot of a boss shows the same tooltip; rares can also not spawn at all)
+			SpotTooltip = function(pin)
+				HighlightSpots(pin)
+				local rows = pin.spot
+				local row = rows[1]
+				local isRare = row[8] == 2 or row[8] == 4
+				local level = row[6]
+				local names = row[5]
+				for i = 2, #rows do
+					names = names .. "|n" .. rows[i][5]
+					if rows[i][6] ~= level then level = nil end
+				end
+				tip:SetText(names, 1, 0.82, 0, 1, true)
+				if isRare then
+					tip:AddLine(L["Rare"], 0.7, 0.8, 1)
+				else
+					tip:AddLine(L["Boss"], 1, 0.5, 0.25)
+				end
+				if level then
+					if level >= UnitLevel("player") + skullLevels or row[8] == 3 then
+						tip:AddLine(LEVEL .. " ??", 1, 0.1, 0.1)
+					else
+						local color = GetCreatureDifficultyColor(level)
+						tip:AddLine(LEVEL .. " " .. level, color.r, color.g, color.b)
+					end
+				end
+				local places = #spawnSpots[row[4]]
+				if not isRare then
+					tip:AddLine(string.format(L["Spawns in one of %d places."], places), 0.6, 0.6, 0.6, true)
+				elseif #rows > 1 then
+					tip:AddLine(string.format(L["These rares may not spawn. If one does, it will be in one of %d places."], places), 0.6, 0.6, 0.6, true)
+				else
+					tip:AddLine(string.format(L["May not spawn. If it does, it will be in one of %d places."], places), 0.6, 0.6, 0.6, true)
+				end
+			end
+
+			-- Function to gather the spawn spots of the bosses on a map (spots shared by several bosses are merged)
+			local function GetSpots(rows)
+				local spots, order = {}, {}
+				for i = 1, #rows do
+					local row = rows[i]
+					local list = row[1] == "boss" and spawnSpots[row[4]]
+					if list then
+						for j = 1, #list do
+							local x, y = list[j][1], list[j][2]
+							local key = x * 1000 + y
+							local spot = spots[key]
+							if not spot then
+								spot = {x = x, y = y}
+								spots[key] = spot
+								order[#order + 1] = spot
+							end
+							spot[#spot + 1] = row
+						end
+					end
+				end
+				return order
 			end
 
 			-- Function to create a pin
@@ -5779,6 +5916,7 @@
 				pin.ring:SetTexCoord(0, 0.6, 0, 0.6)
 				pin.ring:SetSize((bossSize - 4) * ringScale, (bossSize - 4) * ringScale)
 				pin.ring:SetPoint("CENTER", pin.portrait, "CENTER")
+				pin.pulse = AddPulse(pin, pin.portrait)
 
 				-- Elite and rare dragon
 				local s = (bossSize - 4) / 64
@@ -5886,7 +6024,32 @@
 			local function UpdatePins(mapID)
 				local rows = dungeonPins[mapID]
 				local count = 0
+
+				-- Function to add a pin (spot is set for the faded pins of bosses with several spawn spots)
+				local function AddPin(row, index, spot)
+					count = count + 1
+					local pin = pins[count] or CreatePin()
+					pins[count] = pin
+					pin.row = row
+					pin.levelIndex = index
+					pin.spot = spot
+					pin.x, pin.y = spot and spot.x or row[2], spot and spot.y or row[3]
+					pin:SetFrameLevel(canvas:GetFrameLevel() + count * 4)
+					pin.badge:SetFrameLevel(pin:GetFrameLevel() + 2)
+					StylePin(pin, row)
+					StopPulse(pin.pulse)
+					if spot then
+						-- Question mark where several bosses share a spot
+						if #spot > 1 then pin.portrait:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark") end
+						pin:SetAlpha(0.6)
+					else
+						pin:SetAlpha(1)
+					end
+					pin:Show()
+				end
+
 				if rows then
+					local spots = GetSpots(rows)
 					-- Draw rares above other pins and bosses above rares
 					for pass = 1, 3 do
 						for i = 1, #rows do
@@ -5898,22 +6061,21 @@
 								end
 							end
 							local rowPass = row[1] ~= "boss" and 1 or (row[8] == 2 or row[8] == 4) and 2 or 3
-							if pass == rowPass and (row[1] ~= "level" or index) then
-								count = count + 1
-								local pin = pins[count] or CreatePin()
-								pins[count] = pin
-								pin.row = row
-								pin.levelIndex = index
-								pin:SetFrameLevel(canvas:GetFrameLevel() + count * 4)
-								pin.badge:SetFrameLevel(pin:GetFrameLevel() + 2)
-								StylePin(pin, row)
-								pin:Show()
+							if pass == rowPass and (row[1] ~= "level" or index) and not (row[1] == "boss" and spawnSpots[row[4]]) then
+								AddPin(row, index)
+							end
+						end
+						for i = 1, #spots do
+							local row = spots[i][1]
+							if pass == ((row[8] == 2 or row[8] == 4) and 2 or 3) then
+								AddPin(row, nil, spots[i])
 							end
 						end
 					end
 				end
 				for i = count + 1, #pins do
 					pins[i]:Hide()
+					StopPulse(pins[i].pulse)
 				end
 			end
 
