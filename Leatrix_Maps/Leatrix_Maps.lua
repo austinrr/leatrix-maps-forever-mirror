@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 1.60.34 (20th November 2026)
+	-- 	Leatrix Maps 1.60.35 (20th November 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList, LeaLockList = {}, {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "1.60.34"
+	LeaMapsLC["AddonVer"] = "1.60.35"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -8754,7 +8754,7 @@
 
 			local GridData, ExploreData = Leatrix_Maps["MinimapAreaGrid"], Leatrix_Maps["MinimapExplore"]
 			local canvas = WorldMapFrame:GetCanvas()
-			local exploreState = {}	-- By instance: {zone = {}, explored = {}, version = n}
+			local exploreState = {}	-- By instance: {byMap = {}, explored = {}, version = n, dirty = true or false, ...}
 			local tileCache = {}	-- By instance and tile: {palette, squares} and the tile's layout
 			local zoneInst = {}		-- Instance of each zone map
 			local discColors = {
@@ -8771,53 +8771,74 @@
 				return LeaMapsLC["ShowDiscoveryAreas"] == "On" and LeaMapsLC["DiscoveryAreasOn"] == "On" and GridData and ExploreData
 			end
 
-			-- Function to work out which areas on a continent uncover part of the normal map and which have been explored
+			-- Function to work out which areas on a continent uncover part of the normal map (worked out once, as it never
+			-- changes) and which have been explored (worked out again only after your exploration has changed, and only for the
+			-- continent being looked at, so opening the map does no work when nothing has changed)
 			local function UpdateExploredFor(inst)
 				local st = exploreState[inst]
 				-- (byMap: each map's areas and their zones; the same area can uncover overlays on more than one map, such as
 				-- copies of a zone for other phases, so it's kept for each map)
-				if not st then st = {byMap = {}, explored = {}, primary = {}, zoneMap = {}, version = 0}; exploreState[inst] = st end
-				st.byMap = {}; wipe(st.explored); wipe(st.primary); wipe(st.zoneMap)
-				st.version = st.version + 1
-				if not ExploreData then return st end
-				for mapID, overlays in pairs(ExploreData) do
-					if zoneInst[mapID] == nil then
-						local mapInst = C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(0.5, 0.5))
-						zoneInst[mapID] = mapInst or false
-					end
-					if zoneInst[mapID] == inst then
-						-- Areas that uncover the same overlay are one discovery zone (exploring any of them uncovers it), so each
-						-- area is given the zone of its overlay and outlines are drawn around zones rather than single areas
-						local mapZones = st.byMap[mapID] or {}
-						st.byMap[mapID] = mapZones
-						for key, areaList in pairs(overlays) do
-							local zoneKey = mapID .. ":" .. key
-							st.zoneMap[zoneKey] = mapID
-							for area in string.gmatch(areaList, "%d+") do
-								area = tonumber(area)
-								if not mapZones[area] then mapZones[area] = zoneKey end
-								if not st.primary[zoneKey] then st.primary[zoneKey] = area end -- The overlay's own area (for its name)
-							end
+				if not st then
+					-- (maps: the maps on the continent)
+					st = {byMap = {}, explored = {}, primary = {}, zoneMap = {}, maps = {}, version = 0, dirty = true}
+					exploreState[inst] = st
+					for mapID, overlays in pairs(ExploreData or {}) do
+						if zoneInst[mapID] == nil then
+							local mapInst = C_Map.GetWorldPosFromMapPos(mapID, CreateVector2D(0.5, 0.5))
+							zoneInst[mapID] = mapInst or false
 						end
-						local textures = C_MapExplorationInfo and C_MapExplorationInfo.GetExploredMapTextures(mapID)
-						if textures then
-							for i = 1, #textures do
-								local t = textures[i]
-								local key = t.textureWidth .. ":" .. t.textureHeight .. ":" .. t.offsetX .. ":" .. t.offsetY
-								if overlays[key] then st.explored[mapID .. ":" .. key] = true end
+						if zoneInst[mapID] == inst then
+							st.maps[#st.maps + 1] = mapID
+							-- Areas that uncover the same overlay are one discovery zone (exploring any of them uncovers it), so each
+							-- area is given the zone of its overlay and outlines are drawn around zones rather than single areas
+							local mapZones = {}
+							st.byMap[mapID] = mapZones
+							for key, areaList in pairs(overlays) do
+								local zoneKey = mapID .. ":" .. key
+								st.zoneMap[zoneKey] = mapID
+								for area in string.gmatch(areaList, "%d+") do
+									area = tonumber(area)
+									if not mapZones[area] then mapZones[area] = zoneKey end
+									if not st.primary[zoneKey] then st.primary[zoneKey] = area end -- The overlay's own area (for its name)
+								end
 							end
 						end
 					end
 				end
+				if not st.dirty then return st end
+				st.dirty = false
+				if not ExploreData or not C_MapExplorationInfo then return st end
+				-- Explored zones are only ever added, as exploring can't be undone (so a map the game gives no explored overlays
+				-- for at an odd moment keeps the zones already found).  The drawn areas are only worked out again if one was added.
+				local explored, changed = st.explored, false
+				for i = 1, #st.maps do
+					local mapID = st.maps[i]
+					local overlays = ExploreData[mapID]
+					local textures = C_MapExplorationInfo.GetExploredMapTextures(mapID)
+					if textures then
+						for j = 1, #textures do
+							local t = textures[j]
+							local key = t.textureWidth .. ":" .. t.textureHeight .. ":" .. t.offsetX .. ":" .. t.offsetY
+							if overlays[key] then
+								local zoneKey = mapID .. ":" .. key
+								if not explored[zoneKey] then explored[zoneKey] = true; changed = true end
+							end
+						end
+					end
+				end
+				if changed then st.version = st.version + 1 end
 				return st
 			end
 			local function GetExploreState(inst)
-				return exploreState[inst] or UpdateExploredFor(inst)
+				local st = exploreState[inst]
+				if st and not st.dirty then return st end
+				return UpdateExploredFor(inst)
 			end
 
-			-- Function to work the explored areas out again (for every continent seen so far)
+			-- Function to mark the explored areas to be worked out again (for every continent seen so far, each is only worked
+			-- out when it's next looked at)
 			function UpdateExplored()
-				for inst in pairs(exploreState) do UpdateExploredFor(inst) end
+				for inst, st in pairs(exploreState) do st.dirty = true end
 			end
 
 			-- Function to get a tile's squares: a palette of area IDs and a 256 character string of palette numbers (compact)
@@ -9427,12 +9448,14 @@
 				hoverDriver:SetShown(DiscActive() and true or false)
 			end
 
-			-- Exploration changes (registered while the map is open)
+			-- Exploration changes (always registered, so the explored areas are only worked out again when they've changed; the
+			-- event is rare, it fires when you discover an area)
 			discEvents = CreateFrame("Frame")
 			discEvents:SetScript("OnEvent", function()
 				UpdateExplored()
 				if WorldMapFrame:IsShown() then RefreshNormalDiscovery(); UpdateDiscBtn() end -- (the button locks when a zone is fully explored)
 			end)
+			discEvents:RegisterEvent("MAP_EXPLORATION_UPDATED")
 
 			end
 
@@ -9732,12 +9755,9 @@
 				UpdateDiscBtn()
 				RefreshNormalDiscovery()
 			end)
-			-- Thickness follows the zoom, and exploration changes are followed while the map is open
+			-- Thickness follows the zoom
 			hooksecurefunc(WorldMapFrame, "OnCanvasScaleChanged", UpdateNormalThickness)
-			WorldMapFrame:HookScript("OnHide", function() discEvents:UnregisterAllEvents() end)
 			WorldMapFrame:HookScript("OnShow", function()
-				UpdateExplored()
-				discEvents:RegisterEvent("MAP_EXPLORATION_UPDATED")
 				RefreshNormalDiscovery()
 				UpdateDiscBtn()
 			end)
@@ -11141,7 +11161,6 @@
 				LeaMapsDB["HideTownCity"] = "On"
 				LeaMapsDB["ShowDungeonMaps"] = "On"
 				LeaMapsDB["ShowDiscoveryAreas"] = "On"
-				LeaMapsDB["DiscoveryAreasOn"] = "Off"				-- Discovery button starts with the areas hidden
 
 				-- More
 				LeaMapsDB["EnhanceBattleMap"] = "On"
@@ -11264,7 +11283,8 @@
 			LeaMapsLC:LoadVarChk("HideTownCity", "On")					-- Hide town and city icons
 			LeaMapsLC:LoadVarChk("ShowDungeonMaps", "On")				-- Show dungeon maps
 			LeaMapsLC:LoadVarChk("ShowDiscoveryAreas", "On")			-- Show discovery button
-			LeaMapsLC:LoadVarChk("DiscoveryAreasOn", "Off")				-- Discovery areas shown (set by the discovery button)
+			LeaMapsLC["DiscoveryAreasOn"] = "Off"				-- Discovery areas shown (set by the discovery button, off at every reload and not saved)
+			LeaMapsDB["DiscoveryAreasOn"] = nil					-- (removes the setting saved by earlier versions)
 
 			-- More
 			LeaMapsLC:LoadVarChk("EnhanceBattleMap", "Off")				-- Enhance battlefield map
@@ -11378,7 +11398,6 @@
 			LeaMapsDB["HideTownCity"] = LeaMapsLC["HideTownCity"]
 			LeaMapsDB["ShowDungeonMaps"] = LeaMapsLC["ShowDungeonMaps"]
 			LeaMapsDB["ShowDiscoveryAreas"] = LeaMapsLC["ShowDiscoveryAreas"]
-			LeaMapsDB["DiscoveryAreasOn"] = LeaMapsLC["DiscoveryAreasOn"]
 
 			-- More
 			LeaMapsDB["EnhanceBattleMap"] = LeaMapsLC["EnhanceBattleMap"]
